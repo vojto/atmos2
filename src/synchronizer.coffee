@@ -1,6 +1,5 @@
 Spine     = require('spine')
-Spine     = require('spine')
-SocketIO  = require('lib/vendor/socket.io')
+SocketIO  = require('./vendor/socket.io')
 window.SocketIO = SocketIO
 
 Client    = require('./client')

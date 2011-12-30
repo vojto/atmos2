@@ -1,13 +1,14 @@
 { 
-  "name": "atmos2", 
-  "description": "Synchronization framework", 
-  "version": "1.0.0", 
-  "author": "Vojto Rinik vojto@rinik.net", 
-  "repository": { 
-    "type" : "git", 
+  "name": "atmos2",
+  "description": "Synchronization framework",
+  "version": "1.0.0",
+  "author": "Vojto Rinik <vojto@rinik.net>",
+  "repository": {
+    "type" : "git",
     "url": "http://github.com/vojto/atmos2-js.git"
-  }, 
-  "main" : "./synchronizer.js",
+  },
+  "main" : "./lib/stuff.js",
   "dependencies" : {
+    "spine": "1.0.6"
   }
 }
