@@ -1,5 +1,5 @@
 Spine = require('spine')
-{assert} = require('lib/util')
+{assert} = require('./util')
 
 class ResourceClient
   constructor: (options) ->

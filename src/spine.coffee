@@ -2,7 +2,7 @@
 # -----------------------------------------------------------------------------
 
 Spine       = require('spine')
-Atmosphere  = require('lib/atmosphere/synchronizer')
+Atmosphere  = require('./synchronizer')
 
 Spine.Model.Atmosphere =
   extended: ->

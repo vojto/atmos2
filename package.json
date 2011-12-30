@@ -3,11 +3,7 @@
   "description": "Synchronization framework",
   "version": "1.0.0",
   "author": "Vojto Rinik <vojto@rinik.net>",
-  "repository": {
-    "type" : "git",
-    "url": "http://github.com/vojto/atmos2-js.git"
-  },
-  "main" : "./lib/stuff.js",
+  "main" : "./index.js",
   "dependencies" : {
     "spine": "1.0.6"
   }

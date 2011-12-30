@@ -1,4 +1,4 @@
-Lawnchair = require('lib/lawnchair')
+Lawnchair = require('./vendor/lawnchair')
 
 # Atmosphere.MetaContext
 #
