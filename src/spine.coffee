@@ -9,4 +9,4 @@ Spine.Model.Atmosphere =
 
   
   fetchRemote: (params) ->
-    Atmosphere.instance.fetch(@collection(), params)
+    Atmosphere.instance.fetch(@, params)

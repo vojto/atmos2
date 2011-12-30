@@ -8,13 +8,13 @@ class ResourceClient
     
     @base = "http://localhost:3000/api"
     @routes =
-      projects:
+      Course:
         index: "/projects.json"
-      pages:
+      Page:
         index: '/pages.json'
 
-  fetch: (collection, params = {}) ->
-    model = @appContext.modelForCollection(collection)
+  fetch: (model, params = {}) ->
+    collection = model.className
     assert @routes[collection], "No route found for #{collection}"
     path = @routes[collection].index
     @_request path, params, (result) =>
