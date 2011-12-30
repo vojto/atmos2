@@ -6,12 +6,9 @@ class ResourceClient
     @sync = options.sync
     @appContext = options.appContext
     
-    @base = "http://localhost:3000/api"
-    @routes =
-      Course:
-        index: "/projects.json"
-      Page:
-        index: '/pages.json'
+    @base = null
+    @routes = null
+    @IDField = "id"
 
   fetch: (model, params = {}) ->
     collection = model.className
@@ -19,9 +16,9 @@ class ResourceClient
     path = @routes[collection].index
     @_request path, params, (result) =>
       console.log "[ResourceClient] Received #{result.length} objects"
-      model.fetch() # TODO: Away
       for item in result
-        id = item._id # TODO: Configurable
+        id = item[@IDField] # TODO: Configurable
+        assert id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
         uri = {collection: collection, id: id}
         @sync.updateObject uri, item
 
@@ -32,11 +29,9 @@ class ResourceClient
 
     success = (result) ->
       callback(result)
-    error = (res) =>
+    error = (res, err) =>
       return @sync.didFailAuth() if res.status == 401
-    
-    headers = 
-      "Atmosphere-Auth-Key": @sync.authKey
+      console.log "Fetch failed", res, err
     
     $.ajax url, {data: params, dataType: "json", success: success, error: error}
 

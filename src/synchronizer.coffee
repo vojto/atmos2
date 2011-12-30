@@ -2,9 +2,10 @@ Spine     = require('spine')
 SocketIO  = require('./vendor/socket.io')
 window.SocketIO = SocketIO
 
-Client    = require('./client')
-MetaContext = require('./meta_context')
-ResourceClient = require('./resource_client')
+Client          = require('./client')
+AppContext      = require('./app_context')
+MetaContext     = require('./meta_context')
+ResourceClient  = require('./resource_client')
 
 # Atmosphere.Synchronizer
 #
@@ -24,7 +25,7 @@ class Synchronizer extends Spine.Module
   constructor: (options) ->
     @client = new Client(this)
     @metaContext = new MetaContext()
-    @appContext = options.context
+    @appContext = new AppContext()
     @resourceClient = new ResourceClient(sync: this, appContext: @appContext)
     @authKey = "a0b48ccc3e747caf3ed77d94c8f3efc8b7911019"
     Synchronizer.instance = this
