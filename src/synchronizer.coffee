@@ -110,8 +110,7 @@ class Synchronizer extends Spine.Module
     if @appContext.exists(uri)
       @appContext.update uri, data
     else
-      @appContext.create uri, data, (uri) ->
-        console.log "created with uri", uri
+      @appContext.create uri, data
   
   # _createObject: (atid, collection, data, callback) ->
   #   @appContext.create collection, data, (uri) =>

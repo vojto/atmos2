@@ -3,10 +3,12 @@
 
 Spine       = require('spine')
 Atmosphere  = require('./synchronizer')
+require('./lawnchair_spine')
 
 Spine.Model.Atmosphere =
   extended: ->
+    @extend Spine.Model.Lawnchair
 
-  
-  fetchRemote: (params) ->
+  sync: (params) ->
+    @fetch()
     Atmosphere.instance.fetch(@, params)

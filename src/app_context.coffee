@@ -9,17 +9,17 @@ class AppContext
     model = @_modelForURI(uri)
     !!model.exists(uri.id)
   
-  create: (uri, data, callback) ->
+  create: (uri, data) ->
     model = @_modelForURI(uri)
     record = new model(data)
     record.id = uri.id if uri.id?
     record.save()
     uri.id = record.id
-    callback(uri)
   
   update: (uri, data) ->
     record = @_findByURI(uri)
     record.updateAttributes(data)
+    record.save()
   
   relation: (name, sourceURI, targetURI) ->
     source = @_findByURI(sourceURI)
@@ -28,6 +28,7 @@ class AppContext
     hash[name] = target
     source.updateAttributes(hash)
     source.save()
+
   
   _findByURI: (uri) ->
     model = @_modelForURI(uri)
