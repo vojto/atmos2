@@ -10,11 +10,11 @@ class ResourceClient
     @routes = null
     @IDField = "id"
 
-  fetch: (model, params = {}) ->
+  fetch: (model, options = {}) ->
     collection = model.className
     assert @routes[collection], "No route found for #{collection}"
     path = @routes[collection].index
-    @_request path, params, (result) =>
+    @_request path, options.params, (result) =>
       console.log "[ResourceClient] Received #{result.length} objects"
       for item in result
         id = item[@IDField] # TODO: Configurable
