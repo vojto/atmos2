@@ -106,12 +106,6 @@ class Synchronizer extends Spine.Module
   # _updateObject: (meta_object, data) ->
   #   throw "This method is deprecated. Please use updateObject instead"
   
-  updateObject: (uri, data) ->
-    if @appContext.exists(uri)
-      @appContext.update uri, data
-    else
-      @appContext.create uri, data
-  
   # _createObject: (atid, collection, data, callback) ->
   #   @appContext.create collection, data, (uri) =>
   #     console.log "new URI: ", uri

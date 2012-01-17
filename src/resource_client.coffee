@@ -20,7 +20,7 @@ class ResourceClient
         id = item[@IDField] # TODO: Configurable
         assert id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
         uri = {collection: collection, id: id}
-        @sync.updateObject uri, item
+        @appContext.updateOrCreate uri, item
 
   _request: (path, params, callback) ->
     url = @base + path

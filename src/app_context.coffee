@@ -9,6 +9,12 @@ class AppContext
     model = @_modelForURI(uri)
     !!model.exists(uri.id)
   
+  updateOrCreate: (uri, data) ->
+    if @exists(uri)
+      @update uri, data
+    else
+      @create uri, data
+  
   create: (uri, data) ->
     model = @_modelForURI(uri)
     console.log "Creating new record for ", model
@@ -16,6 +22,7 @@ class AppContext
     record.id = uri.id if uri.id?
     record.save()
     uri.id = record.id
+    model.fetch()
   
   update: (uri, data) ->
     record = @_findByURI(uri)
