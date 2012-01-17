@@ -11,6 +11,7 @@ class AppContext
   
   create: (uri, data) ->
     model = @_modelForURI(uri)
+    console.log "Creating new record for ", model
     record = new model(data)
     record.id = uri.id if uri.id?
     record.save()
@@ -37,6 +38,7 @@ class AppContext
   _modelForURI: (uri) ->
     model = @_models[uri.collection]
     unless model
+      console.log "Initializing model", uri.collection
       model = require("models/#{uri.collection.underscorize()}")
       model.fetch()
       @_models[uri.collection] = model
