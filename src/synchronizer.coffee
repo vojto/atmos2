@@ -27,7 +27,6 @@ class Synchronizer extends Spine.Module
     @metaContext = new MetaContext()
     @appContext = new AppContext()
     @resourceClient = new ResourceClient(sync: this, appContext: @appContext)
-    @authKey = "a0b48ccc3e747caf3ed77d94c8f3efc8b7911019"
     Synchronizer.instance = this
 
   configure: ->
