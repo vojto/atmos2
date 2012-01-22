@@ -2,7 +2,7 @@ Spine     = require('spine')
 SocketIO  = require('./vendor/socket.io')
 window.SocketIO = SocketIO
 
-Client          = require('./client')
+MessageClient   = require('./message_client')
 AppContext      = require('./app_context')
 MetaContext     = require('./meta_context')
 ResourceClient  = require('./resource_client')
@@ -23,7 +23,7 @@ class Synchronizer extends Spine.Module
     @instance
   
   constructor: (options) ->
-    @client = new Client(this)
+    @messageClient = new MessageClient(this)
     @metaContext = new MetaContext()
     @appContext = new AppContext()
     @resourceClient = new ResourceClient(sync: this, appContext: @appContext)
@@ -36,10 +36,11 @@ class Synchronizer extends Spine.Module
   # ---------------------------------------------------------------------------
 
   connect: ->
+    throw "This method is not implemented yet"
     this.configure()
     console.log "[Atmosphere] Connecting with key #{@authKey}"
-    @client.connect =>
-      @client.send "client-connect", {auth_key: @authKey}
+    @messageClient.connect =>
+      @messageClient.send "client-connect", {auth_key: @authKey}
 
   clientDidMessage: (type, content) ->
     handlers =

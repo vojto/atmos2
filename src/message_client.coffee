@@ -1,9 +1,10 @@
 # Atmosphere.Client
 #
-# This class is responsible for socket communication
+# This class is responsible for socket communication through messages, thus
+# the name, "Message" client.
 # -----------------------------------------------------------------------------
 
-class Client
+class MessageClient
   constructor: (delegate) ->
     @delegate = delegate
     
@@ -39,4 +40,4 @@ class Client
     $.get "http://#{@host}:#{@port}/#{type}", params, (result) ->
       callback(result)
 
-module.exports = Client
+module.exports = MessageClient
