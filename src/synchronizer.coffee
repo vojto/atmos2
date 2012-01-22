@@ -29,51 +29,14 @@ class Synchronizer extends Spine.Module
     @resourceClient = new ResourceClient(sync: this, appContext: @appContext)
     Synchronizer.instance = this
 
-  configure: ->
-    @metaContext.configure()
+  # Meta objects
+  # ---------------------------------------------------------------------------
+  
+  markObjectChanged: (object) ->
     
-  # Messaging (socket) interface
-  # ---------------------------------------------------------------------------
-
-  connect: ->
-    throw "This method is not implemented yet"
-    this.configure()
-    console.log "[Atmosphere] Connecting with key #{@authKey}"
-    @messageClient.connect =>
-      @messageClient.send "client-connect", {auth_key: @authKey}
-
-  clientDidMessage: (type, content) ->
-    handlers =
-      "server-auth-success": this.didAuth
-      "server-auth-failure": this.didFailAuth
-      "server-push": this.didPush
-    return console.log "no handler for message type #{type}" unless handlers[type]
-    handlers[type].call(this, content)
-  
-  didPush: (content) =>
-    @_applyObjectMessage(content)
-
-  # Authentication
-  # ---------------------------------------------------------------------------
-  
-  setAuthKey: (key) ->
-    @authKey = key
-  
-  hasAuthKey: ->
-    @authKey? && @authKey != ""
-  
-  didAuth: (content) ->
-    @trigger("auth_success")
-    @getChanges()
-  
-  didFailAuth: (content) ->
-    @trigger("auth_fail")
 
   # Resource interface
   # ---------------------------------------------------------------------------
-
-  getChanges: ->
-    throw "This method is deprecated. Use fetch to fetch whole collection. Change tracking has been dropeed."
 
   fetch: (params...) ->
     @resourceClient.fetch(params...)

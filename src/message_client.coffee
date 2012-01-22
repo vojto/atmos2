@@ -39,5 +39,19 @@ class MessageClient
   request: (type, params, callback) ->
     $.get "http://#{@host}:#{@port}/#{type}", params, (result) ->
       callback(result)
+  
+  # Messaging (socket) interface
+  # ---------------------------------------------------------------------------
+
+  clientDidMessage: (type, content) ->
+    handlers =
+      "server-auth-success": this.didAuth
+      "server-auth-failure": this.didFailAuth
+      "server-push": this.didPush
+    return console.log "no handler for message type #{type}" unless handlers[type]
+    handlers[type].call(this, content)
+  
+  didPush: (content) =>
+    @_applyObjectMessage(content)
 
 module.exports = MessageClient
