@@ -17,7 +17,7 @@ class AppContext
   
   create: (uri, data) ->
     model = @_modelForURI(uri)
-    console.log "Creating new record for ", model
+    console.log "Creating new record for ", uri
     record = new model(data)
     record.id = uri.id if uri.id?
     record.save()
@@ -25,22 +25,29 @@ class AppContext
     model.fetch()
   
   update: (uri, data) ->
-    record = @_findByURI(uri)
+    record = @objectAtURI(uri)
     record.updateAttributes(data)
     record.save()
   
+  changeID: (uri, id) ->
+    record = @objectAtURI(uri)
+    console.log "changing id from #{record.id} to #{id}"
+    record.changeID(id)
+  
   relation: (name, sourceURI, targetURI) ->
-    source = @_findByURI(sourceURI)
-    target = @_findByURI(targetURI)
+    source = @objectAtURI(sourceURI)
+    target = @objectAtURI(targetURI)
     hash = {}
     hash[name] = target
     source.updateAttributes(hash)
     source.save()
-
   
-  _findByURI: (uri) ->
+  objectAtURI: (uri) ->
     model = @_modelForURI(uri)
     model.find(uri.id)
+  
+  dataForURI: (uri) ->
+    @objectAtURI(uri).attributes()
   
   _modelForURI: (uri) ->
     model = @_models[uri.collection]

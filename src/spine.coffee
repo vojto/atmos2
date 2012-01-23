@@ -8,8 +8,12 @@ require('./lawnchair_spine')
 Spine.Model.Atmosphere =
   extended: ->
     @extend Spine.Model.Lawnchair
-    @bind 'save', (object) ->
-      Atmosphere.instance.markObjectChanged(object)
+    spineSave = @::["save"]
+    @::["save"] = (args...) ->
+      spineSave.call(this, args...)
+      if args[0]? && args[0].remote == true
+        Atmosphere.instance.markObjectChanged(this)
+
 
   sync: (params) ->
     @fetch()

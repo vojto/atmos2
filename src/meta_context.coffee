@@ -28,13 +28,13 @@ class MetaContext
   
   # Marks object at URI as changed.
   markURIChanged: (uri) ->
-    # console.log "marking as changed", uri
-    mark = (object) =>
+    @findOrCreateObjectAtURI uri, (object) =>
       object.isChanged = true
       @saveObject(object)
+
+  findOrCreateObjectAtURI: (uri, callback) ->
     @objectAtURI uri, (object) =>
-      # console.log "found at uri", uri, object
-      if object then mark(object) else @createObjectAtURI(uri, mark)
+      if object then callback(object) else @createObjectAtURI(uri, callback)
         
   objectAtURI: (uri, callback) ->
     @store.get KeyFromURI(uri), (dict) ->
@@ -50,6 +50,16 @@ class MetaContext
     # console.log "saving", object, object.storeDict()
     @store.save(object.storeDict())
   
+  deleteObject: (object) ->
+    @store.remove object.storeKey(), ->
+      console.log "destroyed"
+  
+  changeIDAtURI: (uri, id) ->
+    @objectAtURI uri, (object) =>
+      @deleteObject(object)
+      object.uri.id = id
+      @saveObject(object)
+  
   # Getting changed objects
   # ---------------------------------------------------------------------------
   
@@ -58,8 +68,17 @@ class MetaContext
     @store.all (dicts) ->
       for dict in dicts
         object = new MetaObject(dict)
-        changed.push(object) # TODO: if
+        changed.push(object) if object.isChanged == true
       callback(changed)
+  
+  # Marking local/remote
+  # ---------------------------------------------------------------------------
+  
+  markURISynced: (uri) ->
+    @findOrCreateObjectAtURI uri, (object) =>
+      object.isLocalOnly  = false
+      object.isChanged    = false
+      @saveObject(object)
 
 # Atmosphere.MetaObject
 #
