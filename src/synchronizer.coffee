@@ -33,6 +33,14 @@ class Synchronizer extends Spine.Module
   # ---------------------------------------------------------------------------
   
   markObjectChanged: (object) ->
+    uri = @appContext.objectURI(object)
+    @metaContext.markURIChanged(uri)
+    @setNeedsSync()
+  
+  # Synchronization
+  # ---------------------------------------------------------------------------
+
+  setNeedsSync: ->
     
 
   # Resource interface
@@ -40,6 +48,22 @@ class Synchronizer extends Spine.Module
 
   fetch: (params...) ->
     @resourceClient.fetch(params...)
+    
+  # Auth
+  # ---------------------------------------------------------------------------  
+  
+  setAuthKey: (key) ->
+    @authKey = key
+
+  hasAuthKey: ->
+    @authKey? && @authKey != ""
+
+  didAuth: (content) ->
+    @trigger("auth_success")
+    @getChanges()
+
+  didFailAuth: (content) ->
+    @trigger("auth_fail")
 
 
   # Working with ojects

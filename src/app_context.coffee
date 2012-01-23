@@ -50,5 +50,8 @@ class AppContext
       model.fetch()
       @_models[uri.collection] = model
     model
-
+  
+  objectURI: (object) ->
+    {collection: object.constructor.className, id: object.id}
+  
 module.exports = AppContext
