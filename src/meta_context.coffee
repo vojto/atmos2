@@ -1,5 +1,13 @@
 Lawnchair = require('./vendor/lawnchair')
 
+KeyFromURI = (uri) ->
+  "#{uri.collection}.#{uri.id}"
+
+URIFromKey = (key) ->
+  [collection, id] = key.split(".")
+  {collection: collection, id: id}
+  
+
 # Atmosphere.MetaContext
 #
 # This class manages "meta" objects. Every application object has a meta object
@@ -29,13 +37,11 @@ class MetaContext
       if object then mark(object) else @createObjectAtURI(uri, mark)
         
   objectAtURI: (uri, callback) ->
-    key = "#{uri.collection}.#{uri.id}"
-    @store.get key, (dict) ->
+    @store.get KeyFromURI(uri), (dict) ->
       if dict? then callback(new MetaObject(dict)) else callback(null)
   
   createObjectAtURI: (uri, callback) ->
-    key = "#{uri.collection}.#{uri.id}"
-    object = {key: key, isChanged: false, isLocalOnly: true}
+    object = {key: KeyFromURI(uri), isChanged: false, isLocalOnly: true}
     @store.save object, ->
       # console.log "creating meta object for", object
       callback(new MetaObject(object))
@@ -63,8 +69,7 @@ class MetaContext
 class MetaObject
   constructor: (attrs) ->
     return null unless attrs.key
-    [collection, id] = attrs.key.split(".")
-    @uri = {collection: collection, id: id}
+    @uri = URIFromKey(attrs.key)
     @isChanged = attrs.isChanged
     @isLocalOnly = attrs.isLocalOnly
   
@@ -72,7 +77,7 @@ class MetaObject
     {key: @storeKey(), isChanged: @isChanged, isLocalOnly: @isLocalOnly}
   
   storeKey: ->
-    "#{@uri.collection}.#{@uri.id}"
+    KeyFromURI(@uri)
     
 
 module.exports = MetaContext
