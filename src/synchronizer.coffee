@@ -28,6 +28,7 @@ class Synchronizer extends Spine.Module
     @appContext = new AppContext()
     @resourceClient = new ResourceClient(sync: this, appContext: @appContext)
     Synchronizer.instance = this
+    @_needsSync = false
 
   # Meta objects
   # ---------------------------------------------------------------------------
@@ -41,7 +42,14 @@ class Synchronizer extends Spine.Module
   # ---------------------------------------------------------------------------
 
   setNeedsSync: ->
-    
+    @_needsSync = true
+    @startSync() if (!@_isSyncInProgress)
+  
+  startSync: ->
+    @_isSyncInProgress = true
+    @metaContext.changedObjects (metaObjects) ->
+      for metaObject in metaObjects
+        console.log 'syncing object', metaObject
 
   # Resource interface
   # ---------------------------------------------------------------------------
