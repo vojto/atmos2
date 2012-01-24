@@ -15,10 +15,13 @@ class ResourceClient
   fetch: (model, options = {}) ->
     console.log "[ResourceClient] Fetching with options", options
     collection = model.className
-    path = @_findPath(collection, "index")
+    path = @_findPath(collection, "index", options.pathParams)
     ids = []
     @_request path, options.params, (result) =>
       items = @itemsFromResult(result)
+      unless items?
+        console.log "[ResourceClient] Items not found in response", result
+        return
       console.log "[ResourceClient] Found #{items.length} items"
       for item in items
         item.id = item[@IDField]
@@ -52,11 +55,14 @@ class ResourceClient
       @sync.updateOrCreate(uri, result)
       @sync.markURISynced(uri)
 
-  _findPath: (collection, action) ->
+  _findPath: (collection, action, params = {}) ->
+    console.log "finding path", params
     assert @routes[collection], "No route found for #{collection}"
     path = @routes[collection][action]
     assert path, "No route found for #{collection}/#{action}"
     [method, path] = path.split(" ")
+    if params?
+      path = path.replace(":#{param}", value) for param, value of params
     {method: method, path: path}
     
 

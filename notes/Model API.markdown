@@ -38,7 +38,7 @@ When saving asynchronously, the object is simply marked as changed and synced th
 For these cases, it is possible to specify sync options from model:
 
     class Comment
-      remoteOptions: (record) ->
+      remoteSaveOptions: (record) ->
         params: {},
         pathParams: {},
         updateData: (data) -> data
