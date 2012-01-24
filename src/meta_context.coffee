@@ -55,6 +55,7 @@ class MetaContext
   
   changeIDAtURI: (uri, id) ->
     @objectAtURI uri, (object) =>
+      return unless object
       @deleteObject(object)
       object.uri.id = id
       @saveObject(object)

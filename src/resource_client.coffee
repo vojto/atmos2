@@ -45,15 +45,16 @@ class ResourceClient
   itemsFromResult: (result) ->
     result
 
-  syncURI: (uri, action) ->
-    console.log "Syncing object", uri
-    path = @_findPath(uri.collection, action)
+  save: (uri, options = {}) ->
+    console.log "Syncing object #{uri.id}", uri, options
+    path = @_findPath(uri.collection, options.action, options.pathParams)
     data = @appContext.dataForURI(uri)
     delete data[@IDField] # TODO: Better solution
     @_request path, data, (result) =>
       result.id = result[@IDField] # TODO: Something smarter
       assert result.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
       # Handle id change case
+      options.updateData(result) if options.updateData?
       @sync.updateOrCreate(uri, result)
       @sync.markURISynced(uri)
 

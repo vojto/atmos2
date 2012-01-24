@@ -8,11 +8,15 @@ Spine.Model.Lawnchair =
     @fetch @loadLawnchair
   
   saveLawnchair: (record, type) ->
+    console.log "lawnchair save", type
     @prepareStore @name, (store) =>
       data = JSON.parse(JSON.stringify(record))
       data.key = data.id
       delete data.id
-      store.save(data)
+      if type == "destroy"
+        store.remove(data.key)
+      else
+        store.save(data)
   
   loadLawnchair: ->
     @prepareStore @name, (store) =>

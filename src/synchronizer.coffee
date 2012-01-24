@@ -33,12 +33,24 @@ class Synchronizer extends Spine.Module
 
   # App objects
   updateOrCreate: (uri, item) ->
+    console.log "update or create: ", uri, item
     # Check for ID change
     if item.id != uri.id
+      console.log "changing id #{uri.id} -> #{item.id}"
       @appContext.changeID(uri, item.id)
       @metaContext.changeIDAtURI(uri, item.id)
       uri.id = item.id
     @appContext.updateOrCreate(uri, item)
+
+  # Resource interface
+  # ---------------------------------------------------------------------------
+
+  fetch: (params...) ->
+    @resourceClient.fetch(params...)
+  
+  save: (object, options) ->
+    uri = @appContext.objectURI(object)
+    @resourceClient.save(uri, options)
 
   # Meta objects
   # ---------------------------------------------------------------------------
@@ -66,13 +78,7 @@ class Synchronizer extends Spine.Module
     @metaContext.changedObjects (metaObjects) ->
       for metaObject in metaObjects
         action = if metaObject.isLocalOnly then "create" else "update"
-        resourceClient.syncURI(metaObject.uri, action)
-
-  # Resource interface
-  # ---------------------------------------------------------------------------
-
-  fetch: (params...) ->
-    @resourceClient.fetch(params...)
+        resourceClient.save(metaObject.uri, {action: action})
     
   # Auth
   # ---------------------------------------------------------------------------  

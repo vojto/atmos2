@@ -11,8 +11,14 @@ Spine.Model.Atmosphere =
     spineSave = @::["save"]
     @::["save"] = (args...) ->
       spineSave.call(this, args...)
-      if args[0]? && args[0].remote == true
-        Atmosphere.instance.markObjectChanged(this)
+      options = args[0]
+      if options? && options.remote == true
+        Atmosphere.instance.save(this, options)
+    @::["changeID"] = (id) -> # TODO: Fix this mess
+      @destroy()
+      @id = id
+      @newRecord = true
+      @save()
 
 
   sync: (params) ->
