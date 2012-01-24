@@ -13,17 +13,29 @@ class ResourceClient
     @dataCoding = "form" # "json"
 
   fetch: (model, options = {}) ->
+    console.log "[ResourceClient] Fetching with options", options
     collection = model.className
     path = @_findPath(collection, "index")
+    ids = []
     @_request path, options.params, (result) =>
       items = @itemsFromResult(result)
       console.log "[ResourceClient] Found #{items.length} items"
       for item in items
-        id = item[@IDField]
-        assert id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
-        uri = {collection: collection, id: id}
+        item.id = item[@IDField]
+        assert item.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
+        ids.push(item.id)
+        uri = {collection: collection, id: item.id}
         @sync.updateOrCreate(uri, item)
         @sync.markURISynced(uri)
+      @_removeObjectsNotInList(collection, ids) if options.remove == true
+  
+  _removeObjectsNotInList: (collection, ids) ->
+    uris = @appContext.allURIs(collection)
+    for uri in uris
+      isInList = ids.indexOf(uri.id) != -1
+      unless isInList
+        console.log "[ResourceClient] Local id #{uri.id} wasn't retrieved, destroying."
+        @appContext.destroy(uri)
   
   itemsFromResult: (result) ->
     result

@@ -61,4 +61,13 @@ class AppContext
   objectURI: (object) ->
     {collection: object.constructor.className, id: object.id}
   
+  allURIs: (collection) ->
+    uri = {collection:collection}
+    model = @_modelForURI(uri)
+    # model.fetch() # TODO: Fetch maybe?
+    @objectURI(object) for object in model.all()
+  
+  destroy: (uri) ->
+    @objectAtURI(uri).destroy()
+  
 module.exports = AppContext

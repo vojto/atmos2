@@ -52,7 +52,6 @@ class MetaContext
   
   deleteObject: (object) ->
     @store.remove object.storeKey(), ->
-      console.log "destroyed"
   
   changeIDAtURI: (uri, id) ->
     @objectAtURI uri, (object) =>

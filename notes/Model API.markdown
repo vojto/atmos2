@@ -12,6 +12,11 @@ Load data from remote source, but don't persist them in local storage
 
     Model.sync(remote: true, local: false)
 
+Load data from remote source, and remove local objects that are not in the retrieved collection. 
+
+    Model.sync(remote: true, remove: true)
+
+
 # Saving
 
 Save object locally
