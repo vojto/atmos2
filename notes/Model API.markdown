@@ -3,18 +3,15 @@
 Load data from local storage:
 
     Model.sync()
-    
-Loads data from remote source and persists them in local storage:
 
-    Model.sync(remote: true)
+Options:
 
-Load data from remote source, but don't persist them in local storage
-
-    Model.sync(remote: true, local: false)
-
-Load data from remote source, and remove local objects that are not in the retrieved collection. 
-
-    Model.sync(remote: true, remove: true)
+- `remote`:`boolean` If true load data from remote source and persists them in local storage, otherwise simply fetches local data. 
+- `local`:`boolean` If true it won't persist data in local storage, only load them transiently
+- `remove`:`boolean` If true, removes local objects that weren't in the retrieved collection
+- `params`:`object` Params sent to server with HTTP request.
+- `pathParams`:`object` Params used to update path
+- `updateData`:`function` This function is called on each of items from the collection before it is persisted. Use it to alter the incoming data.
 
 
 # Saving
@@ -23,10 +20,25 @@ Save object locally
 
     object.save()
 
-Save object locally and send remote request.
+Options:
 
-    object.save(remote: true)
+- `remote`:`boolean` If true object is marked as changed and synced with the source immediately or the next time user is online.
+- `sync`:`boolean` If true, object is sent synchronously: The request is made right away and its possible to add more options to it.
 
-Send remote request, save locally when finishes (wait for confirmation):
+Options for synchronous saving: (`sync` must be `true`):
 
-    object.save(remote: true, sync: true)
+- `params`:`object` Params sent to server with HTTP request.
+- `pathParams`:`object` Params used to update path
+- `updateData`:`function` This function is called on each of items from the collection before it is persisted. Use it to alter the incoming data.
+
+## Specifying options from the model
+
+When saving asynchronously, the object is simply marked as changed and synced the next cycle. 
+
+For these cases, it is possible to specify sync options from model:
+
+    class Comment
+      remoteOptions: (record) ->
+        params: {},
+        pathParams: {},
+        updateData: (data) -> data
