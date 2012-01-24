@@ -32,6 +32,7 @@ class ResourceClient
         @sync.updateOrCreate(uri, item)
         @sync.markURISynced(uri)
       @_removeObjectsNotInList(collection, ids) if options.remove == true
+      console.log "[ResourceClient] Finished fetch"
   
   _removeObjectsNotInList: (collection, ids) ->
     uris = @appContext.allURIs(collection)

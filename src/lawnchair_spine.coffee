@@ -9,12 +9,10 @@ Spine.Model.Lawnchair =
   
   saveLawnchair: (record, type) ->
     @prepareStore @name, (store) =>
-      store.nuke()
-      for id, record of @records
-        data = JSON.parse(JSON.stringify(record))
-        data.key = data.id
-        delete data.id
-        store.save(data)
+      data = JSON.parse(JSON.stringify(record))
+      data.key = data.id
+      delete data.id
+      store.save(data)
   
   loadLawnchair: ->
     @prepareStore @name, (store) =>

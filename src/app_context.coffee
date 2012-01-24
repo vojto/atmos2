@@ -27,7 +27,6 @@ class AppContext
   update: (uri, data) ->
     record = @objectAtURI(uri)
     record.updateAttributes(data)
-    record.save()
   
   changeID: (uri, id) ->
     record = @objectAtURI(uri)
