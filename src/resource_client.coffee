@@ -28,6 +28,7 @@ class ResourceClient
         assert item.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
         ids.push(item.id)
         uri = {collection: collection, id: item.id}
+        options.updateData(item) if options.updateData?
         @sync.updateOrCreate(uri, item)
         @sync.markURISynced(uri)
       @_removeObjectsNotInList(collection, ids) if options.remove == true
