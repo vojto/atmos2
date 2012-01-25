@@ -63,7 +63,6 @@ class Synchronizer extends Spine.Module
   markObjectChanged: (object) ->
     uri = @appContext.objectURI(object)
     @metaContext.markURIChanged(uri)
-    @setNeedsSync()
   
   markURISynced: (uri) ->
     @metaContext.markURISynced(uri)
@@ -80,11 +79,15 @@ class Synchronizer extends Spine.Module
     # return if @_isSyncInProgress == true
     @_isSyncInProgress = true
     resourceClient = @resourceClient
-    @metaContext.changedObjects (metaObjects) ->
+    @metaContext.changedObjects (metaObjects) =>
       for metaObject in metaObjects
         action = if metaObject.isLocalOnly then "create" else "update"
+        console.log "syncing meta object #{action}", metaObject
         object = @appContext.objectAtURI(metaObject.uri)
-        resourceClient.save(object, {action: action})
+        options = {action: action}
+        options = object.remoteSaveOptions(options) if object.remoteSaveOptions?
+        resourceClient.save(object, options)
+        # TODO: Finish sync
     
   # Auth
   # ---------------------------------------------------------------------------  

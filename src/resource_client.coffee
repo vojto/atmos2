@@ -57,7 +57,6 @@ class ResourceClient
       if options.sync
         object.save()
         uri = @appContext.objectURI(object)
-      console.log "uri after saving #{uri.id}"
       options.updateData(result) if options.updateData?
       @sync.updateOrCreate(uri, result)
       @sync.markURISynced(uri)

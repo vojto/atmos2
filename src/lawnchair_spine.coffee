@@ -8,7 +8,6 @@ Spine.Model.Lawnchair =
     @fetch @loadLawnchair
   
   saveLawnchair: (record, type) ->
-    console.log "lawnchair save", type
     @prepareStore @name, (store) =>
       data = JSON.parse(JSON.stringify(record))
       data.key = data.id
