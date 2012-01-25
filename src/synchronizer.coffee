@@ -49,8 +49,13 @@ class Synchronizer extends Spine.Module
     @resourceClient.fetch(params...)
   
   save: (object, options) ->
-    uri = @appContext.objectURI(object)
-    @resourceClient.save(uri, options)
+    if options.sync
+      uri = @appContext.objectURI(object)
+      @resourceClient.save(object, options)
+    else
+      object.save()
+      @markObjectChanged(object)
+      @setNeedsSync()
 
   # Meta objects
   # ---------------------------------------------------------------------------
@@ -78,7 +83,8 @@ class Synchronizer extends Spine.Module
     @metaContext.changedObjects (metaObjects) ->
       for metaObject in metaObjects
         action = if metaObject.isLocalOnly then "create" else "update"
-        resourceClient.save(metaObject.uri, {action: action})
+        object = @appContext.objectAtURI(metaObject.uri)
+        resourceClient.save(object, {action: action})
     
   # Auth
   # ---------------------------------------------------------------------------  

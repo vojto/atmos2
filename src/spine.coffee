@@ -10,10 +10,11 @@ Spine.Model.Atmosphere =
     @extend Spine.Model.Lawnchair
     spineSave = @::["save"]
     @::["save"] = (args...) ->
-      spineSave.call(this, args...)
       options = args[0]
       if options? && options.remote == true
         Atmosphere.instance.save(this, options)
+      else
+        spineSave.call(this, args...)
     @::["changeID"] = (id) -> # TODO: Fix this mess
       @destroy()
       @id = id

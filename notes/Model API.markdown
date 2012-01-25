@@ -27,8 +27,9 @@ Options:
 
 Options for synchronous saving: (`sync` must be `true`):
 
-- `params`:`object` Params sent to server with HTTP request.
 - `pathParams`:`object` Params used to update path
+- `data`:`object` Custom data to be sent instead of object's attributes
+- `prepareData`:`function` This function is called before data is sent to the server, to prepare them for the API. 
 - `updateData`:`function` This function is called on each of items from the collection before it is persisted. Use it to alter the incoming data.
 
 ## Specifying options from the model

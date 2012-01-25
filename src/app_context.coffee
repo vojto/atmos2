@@ -46,7 +46,10 @@ class AppContext
     model.find(uri.id)
   
   dataForURI: (uri) ->
-    @objectAtURI(uri).attributes()
+    @dataForObject(@objectAtURI(uri))
+  
+  dataForObject: (object) ->
+    object.attributes()
   
   _modelForURI: (uri) ->
     model = @_models[uri.collection]
