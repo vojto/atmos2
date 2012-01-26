@@ -72,9 +72,6 @@ class ResourceClient
     route = {method: method, path: path}
     route.query = $.param(options.params) if options.params?
     route
-      
-    
-
 
   _request: (path, data, callback) ->
     proceed = =>
