@@ -15,9 +15,9 @@ class ResourceClient
   fetch: (model, options = {}) ->
     console.log "[ResourceClient] Fetching with options", options
     collection = model.className
-    path = @_findPath(collection, "index", options.pathParams)
+    path = @_findPath(collection, "index", options)
     ids = []
-    @_request path, options.params, (result) =>
+    @_request path, {}, (result) =>
       items = @itemsFromResult(result)
       unless items?
         console.log "[ResourceClient] Items not found in response", result
@@ -43,7 +43,7 @@ class ResourceClient
   save: (object, options = {}) ->
     uri = @appContext.objectURI(object)
     console.log "Syncing object #{uri.id}", uri, options
-    path = @_findPath(uri.collection, options.action, options.pathParams)
+    path = @_findPath(uri.collection, options.action, options)
     data = options.data || @appContext.dataForObject(object)
     data = options.prepareData(data, options) if options.prepareData?
     @_request path, data, (result) =>
@@ -57,22 +57,30 @@ class ResourceClient
       @sync.updateOrCreate(uri, result)
       @sync.markURISynced(uri)
 
-  _findPath: (collection, action, params = {}) ->
-    console.log "finding path", params
+  execute: (options, callback) ->
+    path = @_findPath(options.collection, options.action, options)
+    @_request path, options.data, callback
+
+  _findPath: (collection, action, options = {}) ->
+    console.log "finding path", options
     assert @routes[collection], "No route found for #{collection}"
     path = @routes[collection][action]
     assert path, "No route found for #{collection}/#{action}"
     [method, path] = path.split(" ")
-    if params?
-      path = path.replace(":#{param}", value) for param, value of params
-    {method: method, path: path}
+    if options.pathParams?
+      path = path.replace(":#{param}", value) for param, value of options.pathParams
+    route = {method: method, path: path}
+    route.query = $.param(options.params) if options.params?
+    route
+      
+    
 
 
-  _request: (path, params, callback) ->
+  _request: (path, data, callback) ->
     proceed = =>
       url = @base + path.path
+      url += "?#{path.query}" if path.query
       method = path.method
-      data = params or {}
       contentType = "application/x-www-form-urlencoded"
       if @dataCoding == "json"
         data = JSON.stringify(data)
@@ -82,7 +90,15 @@ class ResourceClient
       error = (res, err) =>
         return @sync.didFailAuth() if res.status == 401
         console.log "Fetch failed #{res} #{err}", res, err
-      $.ajax url, {type: method, data: data, dataType: "json", success: success, error: error, headers: @headers, contentType: contentType}
+      options = 
+        type: method
+        dataType: "json"
+        success: success
+        error: error
+        headers: @headers
+        contentType: contentType
+      options.data = data if data?
+      $.ajax url, options
 
     if @beforeRequest?
       @beforeRequest(proceed)
