@@ -1,8 +1,16 @@
 # About
 
-This library allows building REST-based web applications that cache objects locally for better user experience and offline usage.
+Build REST web applications based on [Spine](http://spinejs.com/) that cache objects locally for better user experience and offline usage.
 
-At the moment it only supports applications that utilize [Spine](https://github.com/maccman/spine) model layer.
+**Fetch objects from remote source**
+
+    Task.sync(remote: true)
+    
+**Save object**
+
+    task.save(remote:true)
+    
+This method will return instantly marking object as changed. A request will be made in the background.
 
 # Current state
 
@@ -37,8 +45,8 @@ Add these modules to your `slug.json`:
 
 Let's say this is your current Spine model:
 
-    class List extends Spine.Model
-      @configure 'List', 'title', 'kind', 'selfLink'
+    class Task extends Spine.Model
+      @configure 'Task', 'title', 'kind', 'selfLink'
 
 ### Extend with Atmosphere
 
@@ -46,8 +54,8 @@ All you have to do is require Atmosphere's Spine adapter, and extend model with 
 
     require('atmos2/lib/spine')
     
-    class List extends Spine.Model
-      @configure 'List', 'title', 'kind', 'selfLink'
+    class Task extends Spine.Model
+      @configure 'Task', 'title', 'kind', 'selfLink'
       @extend Spine.Model.Atmosphere
 
 Atmosphere will automatically use the local storage.
@@ -64,7 +72,7 @@ Do this somewhere, where it will be executed before anything else.
 As you can see, this example will work with Google Tasks API. But first, Atmosphere needs more information.
 
     atmos.resourceClient.routes =
-      List:
+      Task:
         index: "/lists"
     atmos.resourceClient.addHeader "Authorization", "OAuth #{token}"
     atmos.resourceClient.IDField = "id"
@@ -80,14 +88,14 @@ As you can see, this example will work with Google Tasks API. But first, Atmosph
 
 ## Fetching objects
 
-    List.sync(remote: true)
+    Task.sync(remote: true)
 
 This will first fetch data from local storage triggering the `refresh` event, then make the network request, update local data, and trigger `refresh` event again.
 
 ## Sending objects
 
-    list = new List({title: "List 2"})
-    list.save(remote: true)
+    task = new Task({title: "Task 2"})
+    task.save(remote: true)
 
 Calling `save` will first save the object locally, then it will make network request to save it again. `create` action will be used.
 
