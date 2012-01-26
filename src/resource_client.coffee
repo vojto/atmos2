@@ -85,7 +85,9 @@ class ResourceClient
       success = (result) ->
         callback(result)
       error = (res, err) =>
-        return @sync.didFailAuth() if res.status == 401
+        res.status == 401
+          console.log "failed with error 401 #{err}"
+          return @sync.didFailAuth()
         console.log "Fetch failed #{res} #{err}", res, err
       options = 
         type: method
