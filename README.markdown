@@ -5,7 +5,9 @@ Build REST web applications based on [Spine](http://spinejs.com/) that cache obj
 **Fetch objects from remote source**
 
     Task.sync(remote: true)
-    
+
+Makes request to the server fetching the data for collection "tasks". When done, it will trigger the `refresh` which updates the interface.
+
 **Save object**
 
     task.save(remote:true)
