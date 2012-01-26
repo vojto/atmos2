@@ -33,7 +33,6 @@ class Synchronizer extends Spine.Module
 
   # App objects
   updateOrCreate: (uri, item) ->
-    console.log "update or create: ", uri, item
     # Check for ID change
     if item.id != uri.id
       console.log "changing id #{uri.id} -> #{item.id}"
@@ -88,6 +87,16 @@ class Synchronizer extends Spine.Module
         options = object.remoteSaveOptions(options) if object.remoteSaveOptions?
         resourceClient.save(object, options)
         # TODO: Finish sync
+  
+  removeObjectsNotInList: (collection, ids) ->
+    uris = @appContext.allURIs(collection)
+    for uri in uris
+      isInList = ids.indexOf(uri.id) != -1
+      if !isInList
+        @metaContext.isURILocalOnly uri, (res) =>
+          return if res == true # Don't destroy if object is local only
+          console.log "[ResourceClient] Local id #{uri.id} wasn't retrieved, destroying."
+          @appContext.destroy(uri)
     
   # Auth
   # ---------------------------------------------------------------------------  

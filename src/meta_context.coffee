@@ -63,6 +63,16 @@ class MetaContext
   # Getting changed objects
   # ---------------------------------------------------------------------------
   
+  isURILocalOnly: (uri, callback) ->
+    @objectAtURI uri, (object) ->
+      return callback(true) unless object
+      callback(object.isLocalOnly)
+  
+  isURIChanged: (uri, callback) ->
+    @objectAtURI uri, (object) ->
+      return callback(false) unless object
+      callback(object.isChanged)
+  
   changedObjects: (callback) ->
     changed = []
     @store.all (dicts) ->

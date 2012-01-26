@@ -35,12 +35,7 @@ class ResourceClient
       console.log "[ResourceClient] Finished fetch"
   
   _removeObjectsNotInList: (collection, ids) ->
-    uris = @appContext.allURIs(collection)
-    for uri in uris
-      isInList = ids.indexOf(uri.id) != -1
-      unless isInList
-        console.log "[ResourceClient] Local id #{uri.id} wasn't retrieved, destroying."
-        @appContext.destroy(uri)
+    @sync.removeObjectsNotInList(collection, ids)
   
   itemsFromResult: (result) ->
     result
@@ -54,6 +49,7 @@ class ResourceClient
     @_request path, data, (result) =>
       result.id = result[@IDField] # TODO: Something smarter
       assert result.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
+      console.log "[ResourceClient] Finished save #{result.id}"
       if options.sync
         object.save()
         uri = @appContext.objectURI(object)
@@ -70,25 +66,29 @@ class ResourceClient
     if params?
       path = path.replace(":#{param}", value) for param, value of params
     {method: method, path: path}
-    
+
 
   _request: (path, params, callback) ->
-    url = @base + path.path
-    method = path.method
-    data = params or {}
-    contentType = "application/x-www-form-urlencoded"
-    if @dataCoding == "json"
-      data = JSON.stringify(data)
-      contentType = "application/json" 
+    proceed = =>
+      url = @base + path.path
+      method = path.method
+      data = params or {}
+      contentType = "application/x-www-form-urlencoded"
+      if @dataCoding == "json"
+        data = JSON.stringify(data)
+        contentType = "application/json" 
+      success = (result) ->
+        callback(result)
+      error = (res, err) =>
+        return @sync.didFailAuth() if res.status == 401
+        console.log "Fetch failed #{res} #{err}", res, err
+      $.ajax url, {type: method, data: data, dataType: "json", success: success, error: error, headers: @headers, contentType: contentType}
 
-    success = (result) ->
-      callback(result)
-    error = (res, err) =>
-      return @sync.didFailAuth() if res.status == 401
-      console.log "Fetch failed", res, err
-    
-    $.ajax url, {type: method, data: data, dataType: "json", success: success, error: error, headers: @headers, contentType: contentType}
-  
+    if @beforeRequest?
+      @beforeRequest(proceed)
+    else
+      proceed()
+
   addHeader: (header, value) ->
     @headers[header] = value
 
