@@ -74,6 +74,7 @@ class ResourceClient
     route
 
   _request: (path, data, callback) ->
+    console.log "making request with token #{@headers.Authorization}"
     proceed = =>
       url = @base + path.path
       url += "?#{path.query}" if path.query
@@ -85,7 +86,7 @@ class ResourceClient
       success = (result) ->
         callback(result)
       error = (res, err) =>
-        res.status == 401
+        if res.status == 401
           console.log "failed with error 401 #{err}"
           return @sync.didFailAuth()
         console.log "Fetch failed #{res} #{err}", res, err
