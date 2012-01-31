@@ -63,11 +63,15 @@ class AppContext
   objectURI: (object) ->
     {collection: object.constructor.className, id: object.id}
   
-  allURIs: (collection) ->
+  allURIs: (collection, predicate) ->
     uri = {collection:collection}
     model = @_modelForURI(uri)
     # model.fetch() # TODO: Fetch maybe?
-    @objectURI(object) for object in model.all()
+    objects = if predicate?
+      model.select(predicate)
+    else
+      model.all()
+    @objectURI(object) for object in objects
   
   destroy: (uri) ->
     @objectAtURI(uri).destroy()

@@ -88,8 +88,8 @@ class Synchronizer extends Spine.Module
         resourceClient.save(object, options)
         # TODO: Finish sync
   
-  removeObjectsNotInList: (collection, ids) ->
-    uris = @appContext.allURIs(collection)
+  removeObjectsNotInList: (collection, ids, scope) ->
+    uris = @appContext.allURIs(collection, scope)
     for uri in uris
       isInList = ids.indexOf(uri.id) != -1
       if !isInList

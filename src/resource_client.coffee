@@ -31,11 +31,11 @@ class ResourceClient
         options.updateData(item) if options.updateData?
         @sync.updateOrCreate(uri, item)
         @sync.markURISynced(uri)
-      @_removeObjectsNotInList(collection, ids) if options.remove == true
+      @_removeObjectsNotInList(collection, ids, options.removeScope) if options.remove == true
       console.log "[ResourceClient] Finished fetch"
   
-  _removeObjectsNotInList: (collection, ids) ->
-    @sync.removeObjectsNotInList(collection, ids)
+  _removeObjectsNotInList: (collection, ids, scope) ->
+    @sync.removeObjectsNotInList(collection, ids, scope)
   
   itemsFromResult: (result) ->
     result
