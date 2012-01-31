@@ -19,9 +19,6 @@ class Synchronizer extends Spine.Module
   # Object lifecycle
   # ---------------------------------------------------------------------------
   
-  @instance: ->
-    @instance
-  
   constructor: (options) ->
     @messageClient = new MessageClient(this)
     @metaContext = new MetaContext()

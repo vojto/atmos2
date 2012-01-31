@@ -10,9 +10,10 @@ Spine.Model.Atmosphere =
     @extend Spine.Model.Lawnchair
     spineSave = @::["save"]
     @::["save"] = (args...) ->
+      atmos = Atmosphere.instance
       options = args[0]
-      if options? && options.remote == true
-        Atmosphere.instance.save(this, options)
+      if atmos? && options? && options.remote == true
+        atmos.save(this, options)
       else
         spineSave.call(this, args...)
     @::["changeID"] = (id) -> # TODO: Fix this mess
@@ -22,6 +23,8 @@ Spine.Model.Atmosphere =
       @save()
 
 
-  sync: (params) ->
+  sync: (params = {}) ->
     @fetch()
-    Atmosphere.instance.fetch(@, params)
+    atmos = Atmosphere.instance
+    if atmos? && params.remote == true
+      atmos.fetch(@, params)
