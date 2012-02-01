@@ -62,7 +62,6 @@ class ResourceClient
     @_request path, options.data, callback
 
   _findPath: (collection, action, options = {}) ->
-    console.log "finding path", options
     assert @routes[collection], "No route found for #{collection}"
     path = @routes[collection][action]
     assert path, "No route found for #{collection}/#{action}"
@@ -74,7 +73,6 @@ class ResourceClient
     route
 
   _request: (path, data, callback) ->
-    console.log "making request with token #{@headers.Authorization}"
     proceed = =>
       url = @base + path.path
       url += "?#{path.query}" if path.query
