@@ -45,6 +45,7 @@ class ResourceClient
     console.log "Syncing object #{uri.id}", uri, options
     path = @_findPath(uri.collection, options.action, options)
     data = options.data || @appContext.dataForObject(object)
+    data[@IDField] = object.id unless data[@IDField]?
     data = options.prepareData(data, options) if options.prepareData?
     @_request path, data, (result) =>
       result.id = result[@IDField] # TODO: Something smarter
