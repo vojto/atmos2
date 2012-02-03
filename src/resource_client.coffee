@@ -11,6 +11,7 @@ class ResourceClient
     @routes = null
     @IDField = "id"
     @dataCoding = "form" # "json"
+    @subitems = {}
 
   fetch: (model, options = {}) ->
     console.log "[ResourceClient] Fetching with options", options
@@ -23,19 +24,27 @@ class ResourceClient
         console.log "[ResourceClient] Items not found in response", result
         return
       console.log "[ResourceClient] Found #{items.length} items"
-      for item in items
-        ids.push @_updateFromItem(collection, item, options)
+      ids = @_updateFromItems(collection, items, options)
       @_removeObjectsNotInList(collection, ids, options.removeScope) if options.remove == true
       console.log "[ResourceClient] Finished fetch"
+  
+  _updateFromItems: (collection, items, options) ->
+    ids = []
+    for item in items
+      ids.push @_updateFromItem(collection, item, options)
+    ids
   
   _updateFromItem: (collection, item, options) ->
     item.id = item[@IDField]
     assert item.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
     uri = {collection: collection, id: item.id}
     options.updateData(item) if options.updateData?
-    @sync.updateOrCreate(uri, item)
-    @sync.markURISynced(uri)
+    @_updateFromData(uri, item)
     item.id
+  
+  _updateFromData: (uri, data) ->
+    @sync.updateOrCreate(uri, data)
+    @sync.markURISynced(uri)
   
   _removeObjectsNotInList: (collection, ids, scope) ->
     @sync.removeObjectsNotInList(collection, ids, scope)
