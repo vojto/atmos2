@@ -23,8 +23,8 @@ class ResourceClient
         console.log "[ResourceClient] Items not found in response", result
         return
       console.log "[ResourceClient] Found #{items.length} items"
-      ids = @_updateFromItem(collection, item, options) for item in items
-      console.log "IDs", ids
+      for item in items
+        ids.push @_updateFromItem(collection, item, options)
       @_removeObjectsNotInList(collection, ids, options.removeScope) if options.remove == true
       console.log "[ResourceClient] Finished fetch"
   
