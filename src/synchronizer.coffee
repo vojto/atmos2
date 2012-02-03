@@ -52,6 +52,9 @@ class Synchronizer extends Spine.Module
       object.save()
       @markObjectChanged(object)
       @setNeedsSync()
+  
+  execute: (params...) ->
+    @resourceClient.execute(params...)
 
   # Meta objects
   # ---------------------------------------------------------------------------
