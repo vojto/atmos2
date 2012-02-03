@@ -23,16 +23,19 @@ class ResourceClient
         console.log "[ResourceClient] Items not found in response", result
         return
       console.log "[ResourceClient] Found #{items.length} items"
-      for item in items
-        item.id = item[@IDField]
-        assert item.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
-        ids.push(item.id)
-        uri = {collection: collection, id: item.id}
-        options.updateData(item) if options.updateData?
-        @sync.updateOrCreate(uri, item)
-        @sync.markURISynced(uri)
+      ids = @_updateFromItem(collection, item, options) for item in items
+      console.log "IDs", ids
       @_removeObjectsNotInList(collection, ids, options.removeScope) if options.remove == true
       console.log "[ResourceClient] Finished fetch"
+  
+  _updateFromItem: (collection, item, options) ->
+    item.id = item[@IDField]
+    assert item.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
+    uri = {collection: collection, id: item.id}
+    options.updateData(item) if options.updateData?
+    @sync.updateOrCreate(uri, item)
+    @sync.markURISynced(uri)
+    item.id
   
   _removeObjectsNotInList: (collection, ids, scope) ->
     @sync.removeObjectsNotInList(collection, ids, scope)
