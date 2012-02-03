@@ -31,18 +31,23 @@ class ResourceClient
   _updateFromItems: (collection, items, options) ->
     ids = []
     for item in items
-      ids.push @_updateFromItem(collection, item, options)
+      uri = {collection: collection}
+      ids.push @_updateFromItem(uri, item, options)
     ids
   
-  _updateFromItem: (collection, item, options) ->
+  _updateFromItem: (uri, item, options) ->
+    console.log 'updating from item', uri, item, options
     item.id = item[@IDField]
     assert item.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
-    uri = {collection: collection, id: item.id}
+    uri.id or= item.id
     options.updateData(item) if options.updateData?
-    @_updateFromData(uri, item)
+    if options.updateFromData?
+      options.updateFromData(uri, item, @_updateFromData)
+    else
+      @_updateFromData(uri, item)
     item.id
   
-  _updateFromData: (uri, data) ->
+  _updateFromData: (uri, data) =>
     @sync.updateOrCreate(uri, data)
     @sync.markURISynced(uri)
   
@@ -60,15 +65,10 @@ class ResourceClient
     data[@IDField] = object.id unless data[@IDField]?
     data = options.prepareData(data, options) if options.prepareData?
     @_request path, data, (result) =>
-      result.id = result[@IDField] # TODO: Something smarter
-      assert result.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
-      console.log "[ResourceClient] Finished save #{result.id}"
       if options.sync
         object.save()
         uri = @appContext.objectURI(object)
-      options.updateData(result) if options.updateData?
-      @sync.updateOrCreate(uri, result)
-      @sync.markURISynced(uri)
+      @_updateFromItem(uri, result, options)
 
   execute: (options, callback) ->
     path = @_findPath(options.collection, options.action, options)
