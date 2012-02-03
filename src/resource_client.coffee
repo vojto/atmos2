@@ -36,7 +36,6 @@ class ResourceClient
     ids
   
   _updateFromItem: (uri, item, options) ->
-    console.log 'updating from item', uri, item, options
     item.id = item[@IDField]
     assert item.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
     uri.id or= item.id
