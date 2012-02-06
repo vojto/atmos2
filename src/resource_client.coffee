@@ -26,6 +26,7 @@ class ResourceClient
       console.log "[ResourceClient] Found #{items.length} items"
       ids = @_updateFromItems(collection, items, options)
       @_removeObjectsNotInList(collection, ids, options.removeScope) if options.remove == true
+      options.success() if options.success
       console.log "[ResourceClient] Finished fetch"
   
   _updateFromItems: (collection, items, options) ->
