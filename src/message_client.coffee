@@ -5,18 +5,17 @@
 # -----------------------------------------------------------------------------
 
 class MessageClient
-  constructor: (delegate) ->
-    @delegate = delegate
-    
-    @host = "localhost"
-    @port = 4001
+  constructor: (sync) ->
+    @sync = sync
 
   connect: (callback) ->
     @close()
-    console.log "[Atmosphere.Client] Opening new connection"
-    @socket = SocketIO.connect("ws://#{@host}:#{@port}/", 'force new connection': true)
-    @socket.on 'connect', callback
-    @socket.on 'message', this.socketDidMessage
+    console.log "[Atmosphere.Client] Connecting to #{@url}"
+    @socket = SocketIO.connect(@url, 'force new connection': true)
+    @socket.on 'connect', ->
+      console.log 'socket connected'
+    @socket.on 'notification', this.parseNotification
+    @socket.on 'update', this.parseUpdate
     @socket.on 'disconnect', this.socketDidClose
 
   close: ->
@@ -26,32 +25,19 @@ class MessageClient
     console.log "[Atmosphere.Client] Connection closed"
     @socket = null
 
-  socketDidMessage: (message) =>
-    {type, content} = JSON.parse(message)
-    @delegate.clientDidMessage type, content
-
   send: (type, content) ->
     message = {type: type, content: content}
     data = JSON.stringify(message)
     console.log "Sending JSON: #{data}"
     @socket.send(data)
   
-  request: (type, params, callback) ->
-    $.get "http://#{@host}:#{@port}/#{type}", params, (result) ->
-      callback(result)
-  
-  # Messaging (socket) interface
+  # Messaging interface
   # ---------------------------------------------------------------------------
 
-  clientDidMessage: (type, content) ->
-    handlers =
-      "server-auth-success": this.didAuth
-      "server-auth-failure": this.didFailAuth
-      "server-push": this.didPush
-    return console.log "no handler for message type #{type}" unless handlers[type]
-    handlers[type].call(this, content)
+  parseNotification: (data) =>
+    console.log 'notification: ', data
   
-  didPush: (content) =>
-    @_applyObjectMessage(content)
+  parseUpdate: (data) =>
+    @sync.updateOrCreate(data.uri, data.attrs)
 
 module.exports = MessageClient

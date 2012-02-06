@@ -20,18 +20,18 @@ class Synchronizer extends Spine.Module
   # ---------------------------------------------------------------------------
   
   constructor: (options) ->
+    Synchronizer.instance = this
     @messageClient = new MessageClient(this)
     @metaContext = new MetaContext()
     @appContext = new AppContext()
     @resourceClient = new ResourceClient(sync: this, appContext: @appContext)
-    Synchronizer.instance = this
     @_needsSync = false
     @_isSyncInProgress = false
 
   # App objects
   updateOrCreate: (uri, item) ->
     # Check for ID change
-    if item.id != uri.id
+    if item.id && item.id != uri.id
       console.log "changing id #{uri.id} -> #{item.id}"
       @appContext.changeID(uri, item.id)
       @metaContext.changeIDAtURI(uri, item.id)

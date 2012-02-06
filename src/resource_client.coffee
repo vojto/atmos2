@@ -94,12 +94,12 @@ class ResourceClient
         data = JSON.stringify(data)
         contentType = "application/json" 
       success = (result) ->
-        callback(result)
+        callback(result) if callback
       error = (res, err) =>
         if res.status == 401
           console.log "failed with error 401 #{err}"
           return @sync.didFailAuth()
-        console.log "Fetch failed #{res} #{err}", res, err
+        console.log "Request failed #{res} #{err}", res, err
       options = 
         type: method
         dataType: "json"
