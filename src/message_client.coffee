@@ -12,8 +12,9 @@ class MessageClient
     @close()
     console.log "[Atmosphere.Client] Connecting to #{@url}"
     @socket = SocketIO.connect(@url, 'force new connection': true)
-    @socket.on 'connect', ->
+    @socket.on 'connect', =>
       console.log 'socket connected'
+      @send 'auth', @authKey
     @socket.on 'notification', this.parseNotification
     @socket.on 'update', this.parseUpdate
     @socket.on 'disconnect', this.socketDidClose
@@ -26,10 +27,7 @@ class MessageClient
     @socket = null
 
   send: (type, content) ->
-    message = {type: type, content: content}
-    data = JSON.stringify(message)
-    console.log "Sending JSON: #{data}"
-    @socket.send(data)
+    @socket.emit(type, content)
   
   # Messaging interface
   # ---------------------------------------------------------------------------
