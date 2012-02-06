@@ -70,7 +70,10 @@ class ResourceClient
       @_updateFromItem(uri, result, options)
 
   execute: (options, callback) ->
-    path = @_findPath(options.collection, options.action, options)
+    if typeof options == 'string'
+      path = {method: 'get', path: options}
+    else
+      path = @_findPath(options.collection, options.action, options)
     @_request path, options.data, callback
 
   _findPath: (collection, action, options = {}) ->
