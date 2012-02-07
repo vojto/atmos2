@@ -90,9 +90,6 @@ class ResourceClient
 
   _request: (path, data, callback) ->
     proceed = =>
-      url = @base + path.path
-      url += "?#{path.query}" if path.query
-      method = path.method
       contentType = "application/x-www-form-urlencoded"
       if @dataCoding == "json"
         data = JSON.stringify(data)
@@ -105,19 +102,25 @@ class ResourceClient
           return @sync.didFailAuth()
         console.log "Request failed #{res} #{err}", res, err
       options = 
-        type: method
         dataType: "json"
         success: success
         error: error
         headers: @headers
         contentType: contentType
       options.data = data if data?
-      $.ajax url, options
-
+      @ajax path, options
     if @beforeRequest?
       @beforeRequest(proceed)
     else
       proceed()
+  
+  ajax: (path, options = {}) ->
+    path = {path: path} if typeof path == 'string'
+    url = @base + path.path
+    url += "?#{path.query}" if path.query
+    options.type or= path.method
+    $.ajax url, options
+    
 
   addHeader: (header, value) ->
     @headers[header] = value

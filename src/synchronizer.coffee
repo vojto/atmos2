@@ -20,13 +20,14 @@ class Synchronizer extends Spine.Module
   # ---------------------------------------------------------------------------
   
   constructor: (options) ->
-    Synchronizer.instance = this
     @messageClient = new MessageClient(this)
     @metaContext = new MetaContext()
     @appContext = new AppContext()
     @resourceClient = new ResourceClient(sync: this, appContext: @appContext)
     @_needsSync = false
     @_isSyncInProgress = false
+    Synchronizer.instance = this
+    Synchronizer.res = @resourceClient
 
   # App objects
   updateOrCreate: (uri, item) ->
