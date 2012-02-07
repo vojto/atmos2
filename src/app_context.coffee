@@ -23,10 +23,12 @@ class AppContext
     record.save()
     uri.id = record.id
     model.fetch()
+    record
   
   update: (uri, data) ->
     record = @objectAtURI(uri)
     record.updateAttributes(data)
+    record
   
   changeID: (uri, id) ->
     record = @objectAtURI(uri)
