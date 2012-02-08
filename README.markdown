@@ -1,5 +1,7 @@
 # Atmos2
 
+[View this file as website on DocumentUp](http://documentup.com/vojto/atmos2/)
+
 ## Introduction
 
 Atmos2 is a library that adds synchronization to models in JavaScript applications. 
