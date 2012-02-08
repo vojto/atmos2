@@ -4,7 +4,7 @@
 
 Atmos2 is a library that adds synchronization to models in JavaScript applications. 
 
-It's goal is to make user interfaces very responsive by hiding the networking. 
+Its goal is to make user interfaces very responsive by hiding the networking. 
 
 ### Overview
 
