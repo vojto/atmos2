@@ -24,19 +24,20 @@ class ResourceClient
         console.log "[ResourceClient] Items not found in response", result
         return
       console.log "[ResourceClient] Found #{items.length} items"
-      ids = @_updateFromItems(collection, items, options)
+      ids = @updateFromItems(collection, items, options)
       @_removeObjectsNotInList(collection, ids, options.removeScope) if options.remove == true
       options.success() if options.success
       console.log "[ResourceClient] Finished fetch"
   
-  _updateFromItems: (collection, items, options) ->
+  updateFromItems: (collection, items, options) ->
     ids = []
     for item in items
       uri = {collection: collection}
-      ids.push @_updateFromItem(uri, item, options)
+      object = @updateFromItem(uri, item, options)
+      ids.push(object.id)
     ids
   
-  _updateFromItem: (uri, item, options) ->
+  updateFromItem: (uri, item, options = {}) ->
     item.id = item[@IDField]
     assert item.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
     uri.id or= item.id
@@ -45,11 +46,11 @@ class ResourceClient
       options.updateFromData(uri, item, @_updateFromData)
     else
       @_updateFromData(uri, item)
-    item.id
   
   _updateFromData: (uri, data) =>
-    @sync.updateOrCreate(uri, data)
+    object = @sync.updateOrCreate(uri, data)
     @sync.markURISynced(uri)
+    object
   
   _removeObjectsNotInList: (collection, ids, scope) ->
     @sync.removeObjectsNotInList(collection, ids, scope)
@@ -68,7 +69,7 @@ class ResourceClient
       if options.sync
         object.save()
         uri = @appContext.objectURI(object)
-      @_updateFromItem(uri, result, options)
+      @updateFromItem(uri, result, options)
 
   execute: (options, callback) ->
     if typeof options == 'string'
