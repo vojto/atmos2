@@ -1,39 +1,56 @@
-# About
+# Atmos2
 
-Build REST web applications based on [Spine](http://spinejs.com/) that cache objects locally for better user experience and offline usage.
+## Introduction
 
-**Fetch objects from remote source**
+Atmos2 is a library that adds synchronization to models in JavaScript applications. 
 
-    Task.sync(remote: true)
+It's goal is to make user interfaces very responsive by hiding the networking. 
 
-Makes request to the server fetching the data for collection "tasks". When done, it will trigger the `refresh` which updates the interface.
+### Overview
 
-**Save object**
+![image 01](http://hron.fei.tuke.sk/~rinik/data/atmos-02.png)
 
-    task.save(remote:true)
+1. Object is saved to local storage. 
+2. User interface is immediately updated
+3. Request is made to update the object on the remote side
+4. Local version is updated from the response
+5. User interface is updated according to changes received from the server
+
+### API Example
+
+**Fetching objects from remote source**
+
+    MyModel.sync(remote: true)
+
+Fetches remote data and persists them in a local collection. Triggers an event on the model, so that the user interface could be updated.
+
+**Saving object**
+
+    myRecord.save(remote: true)
     
-This method will return instantly marking object as changed. A request will be made in the background.
+Stores changes in local storage and makes remote request. When the request is done, updates the local data and triggers event to update the user interface.
 
-# Current state
+### Features
 
-- You can fetch objects and cache them locally using `Model.sync(remote: true)`
-- You can save local object and push it to remote service using `object.save(remote: true)`
+- **API configuration**: Advanced options of configuring API. So far used with typical Rails app and Google Tasks API.
+- **Fetching and caching**: Objects can be fetched and cached in local storage.
+- **Sync and posting**: When object is changed, it's saved locally, then posted to the server.
+- **Offline usage**: The design allows for building offline applications.
+- **Live updating**: Comes with [atmos2-server](https://github.com/vojto/atmos2-server) which is lightweight Node.js proxy for updating objects in real time. 
 
-# Plans
+### Notes
 
-- Live change pushing and notifications through WebSocket
+The current implementation uses the model layer of [Spine.js](http://spinejs.com/). All the code that works with Spine is encapsulated in the [AppContext class](https://github.com/vojto/atmos2/blob/master/src/app_context.coffee), which is 80 lines of CoffeeScript.
 
-# Should I try it?
-
-This is work in progress, feel free to try it, but it's not ready for real use.
-
-# Getting Started
+## Getting Started
 
 Take existing Spine app or create a new one.
 
-## Add Atmosphere to slug.json
+**Install atmos2**
 
-### Add Atmosphere
+`git clone git://github.com/vojto/atmos2.git node_modules/atmos2`
+
+**Update slug.json**
 
 Add these modules to your `slug.json`:
 
@@ -43,14 +60,14 @@ Add these modules to your `slug.json`:
     	"atmos2/lib/spine"
   	],
 
-## Setup your model
+**Setup the model**
 
 Let's say this is your current Spine model:
 
     class Task extends Spine.Model
       @configure 'Task', 'title', 'kind', 'selfLink'
 
-### Extend with Atmosphere
+**Extend the model**
 
 All you have to do is require Atmosphere's Spine adapter, and extend model with it.
 
@@ -62,7 +79,7 @@ All you have to do is require Atmosphere's Spine adapter, and extend model with 
 
 Atmosphere will automatically use the local storage.
 
-## Setting up the synchronizer
+**Set up the synchronizer**
 
 Do this somewhere, where it will be executed before anything else.
 
@@ -88,13 +105,13 @@ As you can see, this example will work with Google Tasks API. But first, Atmosph
 * `itemsFromResult` is a function that will be used to get the items from object decoded from response JSON. In this case, we receive a JSON that looks like this: `{items: [...]}`, so we need to tell Atmosphere how to look for actual records.
 
 
-## Fetching objects
+### Fetching objects
 
     Task.sync(remote: true)
 
 This will first fetch data from local storage triggering the `refresh` event, then make the network request, update local data, and trigger `refresh` event again.
 
-## Sending objects
+### Sending objects
 
     task = new Task({title: "Task 2"})
     task.save(remote: true)
