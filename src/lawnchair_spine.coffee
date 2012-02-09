@@ -8,7 +8,7 @@ Spine.Model.Lawnchair =
     @fetch @loadLawnchair
   
   saveLawnchair: (record, type) ->
-    @prepareStore @name, (store) =>
+    @prepareStore @className, (store) =>
       data = JSON.parse(JSON.stringify(record))
       data.key = data.id
       delete data.id
@@ -18,7 +18,7 @@ Spine.Model.Lawnchair =
         store.save(data)
   
   loadLawnchair: ->
-    @prepareStore @name, (store) =>
+    @prepareStore @className, (store) =>
       store.all (records) =>
         records = for record in records
           record.id = record.key
