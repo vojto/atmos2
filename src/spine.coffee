@@ -22,7 +22,7 @@ Spine.Model.Atmosphere =
       @newRecord = true
       @save()
     @bind 'beforeCreate', (record) ->
-      record.id = @_uuid()
+      record.id or= @_uuid()
 
   _uuid: ->
     'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace /[xy]/g, (c) ->
