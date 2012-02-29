@@ -17,7 +17,6 @@ class AppContext
   
   create: (uri, data) ->
     model = @_modelForURI(uri)
-    console.log "Creating new record for ", uri
     record = new model(data)
     record.id = uri.id if uri.id?
     record.save()
