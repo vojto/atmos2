@@ -59,9 +59,7 @@ class ResourceClient
     result
 
   save: (object, options = {}) ->
-    uri = @appContext.objectURI(object)
-    console.log "Syncing object #{uri.id}", uri, options
-    path = @_findPath(uri.collection, options.action, options)
+    path = @_findPathForObject(object, options.action, options)
     data = options.data || @appContext.dataForObject(object)
     data[@IDField] = object.id unless data[@IDField]?
     data = options.prepareData(data, options) if options.prepareData?
@@ -74,9 +72,17 @@ class ResourceClient
   execute: (options, callback) ->
     if typeof options == 'string'
       path = {method: 'get', path: options}
-    else
+    else if options.collection
       path = @_findPath(options.collection, options.action, options)
+    else if options.object
+      path = @_findPathForObject(options.object, options.action, options)
     @_request path, options.data, callback
+
+  _findPathForObject: (object, action, options) ->
+    uri = @appContext.objectURI(object)
+    options.pathParams    or= {}
+    options.pathParams.id or= uri.id
+    @_findPath(uri.collection, options.action, options)
 
   _findPath: (collection, action, options = {}) ->
     assert @routes[collection], "No route found for #{collection}"

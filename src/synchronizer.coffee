@@ -47,6 +47,7 @@ class Synchronizer extends Spine.Module
   
   save: (object, options) ->
     if options.sync
+      object.save()
       uri = @appContext.objectURI(object)
       @resourceClient.save(object, options)
     else
