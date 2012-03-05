@@ -59,7 +59,8 @@ class ResourceClient
     result
 
   save: (object, options = {}) ->
-    path = @_findPathForObject(object, options.action, options)
+    uri = @appContext.objectURI(object)
+    path = @_findPathForURI(uri, options.action, options)
     data = options.data || @appContext.dataForObject(object)
     data[@IDField] = object.id unless data[@IDField]?
     data = options.prepareData(data, options) if options.prepareData?
@@ -80,6 +81,9 @@ class ResourceClient
 
   _findPathForObject: (object, action, options) ->
     uri = @appContext.objectURI(object)
+    @_findPathForURI(uri)
+  
+  _findPathForURI: (uri, action, options) ->
     options.pathParams    or= {}
     options.pathParams.id or= uri.id
     @_findPath(uri.collection, options.action, options)
