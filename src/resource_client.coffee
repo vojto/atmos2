@@ -14,7 +14,6 @@ class ResourceClient
     @subitems = {}
 
   fetch: (model, options = {}) ->
-    console.log "[ResourceClient] Fetching with options", options
     collection = model.className
     path = @_findPath(collection, "index", options)
     ids = []
@@ -23,11 +22,9 @@ class ResourceClient
       unless items?
         console.log "[ResourceClient] Items not found in response", result
         return
-      console.log "[ResourceClient] Found #{items.length} items"
       ids = @updateFromItems(collection, items, options)
       @_removeObjectsNotInList(collection, ids, options.removeScope) if options.remove == true
       options.success() if options.success
-      console.log "[ResourceClient] Finished fetch"
   
   updateFromItems: (collection, items, options) ->
     ids = []
