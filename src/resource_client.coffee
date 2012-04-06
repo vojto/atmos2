@@ -17,7 +17,7 @@ class ResourceClient
     collection = model.className
     path = @_findPath(collection, "index", options)
     ids = []
-    @_request path, {}, (result) =>
+    @request path, {}, (result) =>
       items = @itemsFromResult(result)
       unless items?
         console.log "[ResourceClient] Items not found in response", result
@@ -61,7 +61,7 @@ class ResourceClient
     data = options.data || @appContext.dataForObject(object)
     data[@IDField] = object.id unless data[@IDField]?
     data = options.prepareData(data, options) if options.prepareData?
-    @_request path, data, (result) =>
+    @request path, data, (result) =>
       if options.sync
         object.save()
         uri = @appContext.objectURI(object)
@@ -74,7 +74,7 @@ class ResourceClient
       path = @_findPath(options.collection, options.action, options)
     else if options.object
       path = @_findPathForObject(options.object, options.action, options)
-    @_request path, options.data, callback
+    @request path, options.data, callback
 
   _findPathForObject: (object, action, options) ->
     uri = @appContext.objectURI(object)
@@ -96,7 +96,7 @@ class ResourceClient
     route.query = $.param(options.params) if options.params?
     route
 
-  _request: (path, data, callback) ->
+  request: (path, data, callback) ->
     proceed = =>
       contentType = "application/x-www-form-urlencoded"
       if @dataCoding == "json"
