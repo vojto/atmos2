@@ -74,6 +74,8 @@ class ResourceClient
       path = @_findPath(options.collection, options.action, options)
     else if options.object
       path = @_findPathForObject(options.object, options.action, options)
+    else
+      path = options
     @request path, options.data, callback
 
   _findPathForObject: (object, action, options) ->
