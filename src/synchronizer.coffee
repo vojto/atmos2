@@ -18,7 +18,7 @@ class Synchronizer extends Spine.Module
 
   # Object lifecycle
   # ---------------------------------------------------------------------------
-  
+
   constructor: (options) ->
     @messageClient = new MessageClient(this)
     @metaContext = new MetaContext()
@@ -44,7 +44,7 @@ class Synchronizer extends Spine.Module
 
   fetch: (params...) ->
     @resourceClient.fetch(params...)
-  
+
   save: (object, options) ->
     if options.sync
       object.save()
@@ -55,28 +55,28 @@ class Synchronizer extends Spine.Module
       object.save()
       @markObjectChanged(object)
       @setNeedsSync()
-  
+
   execute: (params...) -> @resourceClient.execute(params...)
   request: (params...) -> @resourceClient.request(params...)
-    
+
 
   # Meta objects
   # ---------------------------------------------------------------------------
-  
+
   markObjectChanged: (object) ->
     uri = @appContext.objectURI(object)
     @metaContext.markURIChanged(uri)
-  
+
   markURISynced: (uri) ->
     @metaContext.markURISynced(uri)
-  
+
   # Synchronization
   # ---------------------------------------------------------------------------
 
   setNeedsSync: ->
     @_needsSync = true
     @startSync()
-  
+
   startSync: ->
     return unless @_needsSync == true
     # return if @_isSyncInProgress == true
@@ -91,7 +91,7 @@ class Synchronizer extends Spine.Module
         options = object.remoteSaveOptions(options) if object.remoteSaveOptions?
         resourceClient.save(object, options)
         # TODO: Finish sync
-  
+
   removeObjectsNotInList: (collection, ids, scope) ->
     uris = @appContext.allURIs(collection, scope)
     for uri in uris
@@ -101,10 +101,10 @@ class Synchronizer extends Spine.Module
           return if res == true # Don't destroy if object is local only
           console.log "[ResourceClient] Local id #{uri.id} wasn't retrieved, destroying."
           @appContext.destroy(uri)
-    
+
   # Auth
-  # ---------------------------------------------------------------------------  
-  
+  # ---------------------------------------------------------------------------
+
   setAuthKey: (key) ->
     @authKey = key
 

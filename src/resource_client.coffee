@@ -5,11 +5,11 @@ class ResourceClient
   constructor: (options) ->
     @sync = options.sync
     @appContext = options.appContext
-    
+
     @base = null
     @headers = {}
-    @routes = null
-    @IDField = "id"
+    @routes = {}
+    @IDField = '_id'
     @dataCoding = "form" # "json"
     @subitems = {}
 
@@ -25,7 +25,7 @@ class ResourceClient
       ids = @updateFromItems(collection, items, options)
       @_removeObjectsNotInList(collection, ids, options.removeScope) if options.remove == true
       options.success() if options.success
-  
+
   updateFromItems: (collection, items, options) ->
     ids = []
     for item in items
@@ -33,7 +33,7 @@ class ResourceClient
       object = @updateFromItem(uri, item, options)
       ids.push(object.id)
     ids
-  
+
   updateFromItem: (uri, item, options = {}) ->
     item.id = item[@IDField]
     assert item.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
@@ -43,15 +43,15 @@ class ResourceClient
       options.updateFromData(uri, item, @_updateFromData)
     else
       @_updateFromData(uri, item)
-  
+
   _updateFromData: (uri, data) =>
     object = @sync.updateOrCreate(uri, data)
     @sync.markURISynced(uri)
     object
-  
+
   _removeObjectsNotInList: (collection, ids, scope) ->
     @sync.removeObjectsNotInList(collection, ids, scope)
-  
+
   itemsFromResult: (result) ->
     result
 
@@ -81,29 +81,40 @@ class ResourceClient
   _findPathForObject: (object, action, options) ->
     uri = @appContext.objectURI(object)
     @_findPathForURI(uri)
-  
+
   _findPathForURI: (uri, action, options) ->
     options.pathParams    or= {}
     options.pathParams.id or= uri.id
     @_findPath(uri.collection, options.action, options)
 
   _findPath: (collection, action, options = {}) ->
-    assert @routes[collection], "No route found for #{collection}"
-    path = @routes[collection][action]
-    assert path, "No route found for #{collection}/#{action}"
-    [method, path] = path.split(" ")
+    path = if @routes[collection] then @routes[collection][action] else null
+    if path
+      [method, path] = path.split(" ")
+    else
+      method  = @_method_for_action(action)
+      path    = '/' + collection.toLowerCase() + 's'
+
     if options.pathParams?
       path = path.replace(":#{param}", value) for param, value of options.pathParams
     route = {method: method, path: path}
     route.query = $.param(options.params) if options.params?
     route
 
+  _method_for_action: (action) ->
+    methods =
+      'index': 'get',
+      'create': 'post',
+      'update': 'put',
+      'delete': 'delete'
+    methods[action]
+
   request: (path, data, callback) ->
     proceed = =>
       contentType = "application/x-www-form-urlencoded"
       if @dataCoding == "json"
         data = JSON.stringify(data)
-        contentType = "application/json" 
+        contentType = "application/json"
       success = (result) ->
         callback(result) if callback
       error = (res, err) =>
@@ -111,7 +122,7 @@ class ResourceClient
           console.log "failed with error 401 #{err}"
           return @sync.didFailAuth()
         console.log "Request failed #{res} #{err}", res, err
-      options = 
+      options =
         dataType: "json"
         success: success
         error: error
@@ -123,14 +134,14 @@ class ResourceClient
       @beforeRequest(proceed)
     else
       proceed()
-  
+
   ajax: (path, options = {}) ->
     path = {path: path} if typeof path == 'string'
     url = @base + path.path
     url += "?#{path.query}" if path.query
     options.type or= path.method
     $.ajax url, options
-    
+
 
   addHeader: (header, value) ->
     @headers[header] = value
