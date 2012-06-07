@@ -4,7 +4,6 @@ window.SocketIO = SocketIO
 
 MessageClient   = require('./message_client')
 AppContext      = require('./app_context')
-MetaContext     = require('./meta_context')
 ResourceClient  = require('./resource_client')
 
 # Atmosphere.Synchronizer
@@ -21,7 +20,6 @@ class Synchronizer extends Spine.Module
 
   constructor: (options) ->
     @messageClient = new MessageClient(this)
-    @metaContext = new MetaContext()
     @appContext = new AppContext()
     @resourceClient = new ResourceClient(sync: this, appContext: @appContext)
     @_needsSync = false
@@ -35,7 +33,6 @@ class Synchronizer extends Spine.Module
     if item.id && item.id != uri.id
       console.log "changing id #{uri.id} -> #{item.id}"
       @appContext.changeID(uri, item.id)
-      @metaContext.changeIDAtURI(uri, item.id)
       uri.id = item.id
     @appContext.updateOrCreate(uri, item)
 
@@ -46,61 +43,22 @@ class Synchronizer extends Spine.Module
     @resourceClient.fetch(params...)
 
   save: (object, options) ->
-    if options.sync
-      object.save()
-      uri = @appContext.objectURI(object)
-      options = object.remoteSaveOptions(options) if object.remoteSaveOptions?
-      @resourceClient.save(object, options)
-    else
-      object.save()
-      @markObjectChanged(object)
-      @setNeedsSync()
+    object.save() # TODO: This is done in atmos-spine bridge
+    @resourceClient.save(object, options)
 
   execute: (params...) -> @resourceClient.execute(params...)
   request: (params...) -> @resourceClient.request(params...)
 
-
-  # Meta objects
-  # ---------------------------------------------------------------------------
-
-  markObjectChanged: (object) ->
-    uri = @appContext.objectURI(object)
-    @metaContext.markURIChanged(uri)
-
-  markURISynced: (uri) ->
-    @metaContext.markURISynced(uri)
-
   # Synchronization
   # ---------------------------------------------------------------------------
 
-  setNeedsSync: ->
-    @_needsSync = true
-    @startSync()
-
-  startSync: ->
-    return unless @_needsSync == true
-    # return if @_isSyncInProgress == true
-    @_isSyncInProgress = true
-    resourceClient = @resourceClient
-    @metaContext.changedObjects (metaObjects) =>
-      for metaObject in metaObjects
-        action = if metaObject.isLocalOnly then "create" else "update"
-        console.log "syncing meta object #{action}", metaObject
-        object = @appContext.objectAtURI(metaObject.uri)
-        options = {action: action}
-        options = object.remoteSaveOptions(options) if object.remoteSaveOptions?
-        resourceClient.save(object, options)
-        # TODO: Finish sync
-
+  # TODO: Think about how this will be used in the future
   removeObjectsNotInList: (collection, ids, scope) ->
     uris = @appContext.allURIs(collection, scope)
     for uri in uris
       isInList = ids.indexOf(uri.id) != -1
       if !isInList
-        @metaContext.isURILocalOnly uri, (res) =>
-          return if res == true # Don't destroy if object is local only
-          console.log "[ResourceClient] Local id #{uri.id} wasn't retrieved, destroying."
-          @appContext.destroy(uri)
+        @appContext.destroy(uri)
 
   # Auth
   # ---------------------------------------------------------------------------

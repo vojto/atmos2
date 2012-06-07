@@ -46,7 +46,6 @@ class ResourceClient
 
   _updateFromData: (uri, data) =>
     object = @sync.updateOrCreate(uri, data)
-    @sync.markURISynced(uri)
     object
 
   _removeObjectsNotInList: (collection, ids, scope) ->
