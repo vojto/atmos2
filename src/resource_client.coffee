@@ -4,89 +4,84 @@ Spine = require('spine')
 class ResourceClient
   constructor: (options) ->
     @sync = options.sync
-    @appContext = options.appContext
+    @app_context = options.app_context
 
     @base = null
-    @headers = {}
     @routes = {}
-    @IDField = '_id'
-    @dataCoding = "form" # "json"
-    @subitems = {}
+    @_headers = {}
+    @_id_field = '_id'
+    @_data_format = "form" # "json"
 
   fetch: (model, options = {}) ->
     collection = model.className
-    path = @_findPath(collection, "index", options)
+    path = @_find_path(collection, "index", options)
     ids = []
-    @request path, {}, (result) =>
-      items = @itemsFromResult(result)
+    @request path, {}, (items) =>
       unless items?
         console.log "[ResourceClient] Items not found in response", result
         return
-      ids = @updateFromItems(collection, items, options)
-      @_removeObjectsNotInList(collection, ids, options.removeScope) if options.remove == true
+      ids = @update_from_items(collection, items, options)
+      @_remove_objects_not_in_list(collection, ids, options.removeScope) if options.remove == true
       options.success() if options.success
 
-  updateFromItems: (collection, items, options) ->
+  update_from_items: (collection, items, options) ->
     ids = []
     for item in items
       uri = {collection: collection}
-      object = @updateFromItem(uri, item, options)
+      object = @update_from_item(uri, item, options)
       ids.push(object.id)
     ids
 
-  updateFromItem: (uri, item, options = {}) ->
-    item.id = item[@IDField]
-    assert item.id, "[ResourceClient] There's no field '#{@IDField}' that is configured as IDField in incoming object"
+  update_from_item: (uri, item, options = {}) ->
+    item.id = item[@_id_field]
+    assert item.id, "[ResourceClient] There's no field '#{@_id_field}' that is configured as _id_field in incoming object"
     uri.id or= item.id
     options.updateData(item) if options.updateData?
     if options.updateFromData?
-      options.updateFromData(uri, item, @_updateFromData)
+      options.updateFromData(uri, item, @_update_from_data)
     else
-      @_updateFromData(uri, item)
+      @_update_from_data(uri, item)
 
-  _updateFromData: (uri, data) =>
+  _update_from_data: (uri, data) =>
     object = @sync.updateOrCreate(uri, data)
     object
 
-  _removeObjectsNotInList: (collection, ids, scope) ->
+  _remove_objects_not_in_list: (collection, ids, scope) ->
     @sync.removeObjectsNotInList(collection, ids, scope)
 
-  itemsFromResult: (result) ->
-    result
-
   save: (object, options = {}) ->
-    uri = @appContext.objectURI(object)
-    path = @_findPathForURI(uri, options.action, options)
-    data = options.data || @appContext.dataForObject(object)
-    data[@IDField] = object.id unless data[@IDField]?
+    uri = @app_context.objectURI(object)
+    path = @_find_pathForURI(uri, options.action, options)
+    data = options.data || @app_context.dataForObject(object)
+    data[@_id_field] = object.id unless data[@_id_field]?
     data = options.prepareData(data, options) if options.prepareData?
     @request path, data, (result) =>
       if options.sync
         object.save()
-        uri = @appContext.objectURI(object)
-      @updateFromItem(uri, result, options)
+        uri = @app_context.objectURI(object)
+      @update_from_item(uri, result, options)
 
   execute: (options, callback) ->
     if typeof options == 'string'
       path = {method: 'get', path: options}
     else if options.collection
-      path = @_findPath(options.collection, options.action, options)
+      path = @_find_path(options.collection, options.action, options)
     else if options.object
-      path = @_findPathForObject(options.object, options.action, options)
+      path = @_find_pathForObject(options.object, options.action, options)
     else
       path = options
     @request path, options.data, callback
 
-  _findPathForObject: (object, action, options) ->
-    uri = @appContext.objectURI(object)
-    @_findPathForURI(uri)
+  _find_pathForObject: (object, action, options) ->
+    uri = @app_context.objectURI(object)
+    @_find_pathForURI(uri)
 
-  _findPathForURI: (uri, action, options) ->
+  _find_pathForURI: (uri, action, options) ->
     options.pathParams    or= {}
     options.pathParams.id or= uri.id
-    @_findPath(uri.collection, options.action, options)
+    @_find_path(uri.collection, options.action, options)
 
-  _findPath: (collection, action, options = {}) ->
+  _find_path: (collection, action, options = {}) ->
     path = if @routes[collection] then @routes[collection][action] else null
     if path
       [method, path] = path.split(" ")
@@ -111,7 +106,7 @@ class ResourceClient
   request: (path, data, callback) ->
     proceed = =>
       contentType = "application/x-www-form-urlencoded"
-      if @dataCoding == "json"
+      if @_data_format == "json"
         data = JSON.stringify(data)
         contentType = "application/json"
       success = (result) ->
@@ -125,7 +120,7 @@ class ResourceClient
         dataType: "json"
         success: success
         error: error
-        headers: @headers
+        _headers: @_headers
         contentType: contentType
       options.data = data if data?
       @ajax path, options
@@ -143,6 +138,6 @@ class ResourceClient
 
 
   addHeader: (header, value) ->
-    @headers[header] = value
+    @_headers[header] = value
 
 module.exports = ResourceClient
