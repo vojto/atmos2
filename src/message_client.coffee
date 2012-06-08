@@ -5,8 +5,7 @@
 # -----------------------------------------------------------------------------
 
 class MessageClient
-  constructor: (sync) ->
-    @sync = sync
+  constructor: ({@atmos}) ->
 
   connect: (callback) ->
     @close()
@@ -28,14 +27,14 @@ class MessageClient
 
   send: (type, content) ->
     @socket.emit(type, content)
-  
+
   # Messaging interface
   # ---------------------------------------------------------------------------
 
   parseNotification: (data) =>
     console.log 'notification: ', data
-  
+
   parseUpdate: (data) =>
-    @sync.updateOrCreate(data.uri, data.attrs)
+    @atmos.updateOrCreate(data.uri, data.attrs)
 
 module.exports = MessageClient

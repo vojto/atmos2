@@ -1,13 +1,14 @@
 # Atmosphere Spine Model Adapter
 # -----------------------------------------------------------------------------
 
+# TODO: Refactor this into a separate module!
+
 Spine       = require('spine')
 Atmosphere  = require('./synchronizer')
 require('./lawnchair_spine')
 
 Spine.Model.Atmosphere =
   extended: ->
-    @extend Spine.Model.Lawnchair
     spineSave = @::["save"]
     @::["save"] = (args...) ->
       atmos = Atmosphere.instance
@@ -32,9 +33,12 @@ Spine.Model.Atmosphere =
 
   # uid: -> @_uuid()
 
+  # TODO: Start with this method, okaaay? Just make it work like spine.ajax, okaay?
+
   sync: (params = {}) ->
     @fetch()
     atmos = Atmosphere.instance
-    if atmos? && params.remote == true
-      atmos.fetch(@, params)
-
+    atmos.fetch @, params, (objects) ->
+      # TODO: Load them into memory! Somehow!
+      console.log 'loading objects to class', objects, @
+      @refresh(objects)

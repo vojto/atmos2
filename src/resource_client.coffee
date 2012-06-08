@@ -3,7 +3,7 @@ Spine = require('spine')
 
 class ResourceClient
   constructor: (options) ->
-    @sync = options.sync
+    @atmos = options.atmos
     @app_context = options.app_context
 
     @base = null
@@ -43,11 +43,11 @@ class ResourceClient
       @_update_from_data(uri, item)
 
   _update_from_data: (uri, data) =>
-    object = @sync.updateOrCreate(uri, data)
+    object = @atmos.updateOrCreate(uri, data)
     object
 
   _remove_objects_not_in_list: (collection, ids, scope) ->
-    @sync.removeObjectsNotInList(collection, ids, scope)
+    @atmos.removeObjectsNotInList(collection, ids, scope)
 
   save: (object, options = {}) ->
     uri = @app_context.objectURI(object)
@@ -114,7 +114,7 @@ class ResourceClient
       error = (res, err) =>
         if res.status == 401
           console.log "failed with error 401 #{err}"
-          return @sync.didFailAuth()
+          return @atmos.didFailAuth()
         console.log "Request failed #{res} #{err}", res, err
       options =
         dataType: "json"

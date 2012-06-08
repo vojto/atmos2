@@ -1,1 +1,1 @@
-module.exports = require('./lib/synchronizer');
+module.exports = require('./lib/atmos');
