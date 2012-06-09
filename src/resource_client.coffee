@@ -2,6 +2,9 @@ Spine = require('spine')
 {assert} = require('./util')
 
 class ResourceClient
+  # Lifecycle
+  # ---------------------------------------------------------------------------
+
   constructor: (options) ->
     @atmos = options.atmos
     @app_context = options.app_context
@@ -10,12 +13,12 @@ class ResourceClient
     @routes = {}
     @_headers = {}
     @_id_field = '_id'
-    @_data_format = "form" # "json"
 
-  fetch: (model, options = {}) ->
-    collection = model.className
-    path = @_find_path(collection, "index", options)
-    ids = []
+  # Fetching
+  # ---------------------------------------------------------------------------
+
+  fetch: (collection, options = {}, callback) ->
+    path = @_path(collection, "index", options)
     @request path, {}, (items) =>
       unless items?
         console.log "[ResourceClient] Items not found in response", result
@@ -49,9 +52,12 @@ class ResourceClient
   _remove_objects_not_in_list: (collection, ids, scope) ->
     @atmos.removeObjectsNotInList(collection, ids, scope)
 
+  # Saving
+  # ---------------------------------------------------------------------------
+
   save: (object, options = {}) ->
     uri = @app_context.objectURI(object)
-    path = @_find_pathForURI(uri, options.action, options)
+    path = @_pathForURI(uri, options.action, options)
     data = options.data || @app_context.dataForObject(object)
     data[@_id_field] = object.id unless data[@_id_field]?
     data = options.prepareData(data, options) if options.prepareData?
@@ -65,37 +71,48 @@ class ResourceClient
     if typeof options == 'string'
       path = {method: 'get', path: options}
     else if options.collection
-      path = @_find_path(options.collection, options.action, options)
+      path = @_path(options.collection, options.action, options)
     else if options.object
-      path = @_find_pathForObject(options.object, options.action, options)
+      path = @_path_for_object(options.object, options.action, options)
     else
       path = options
     @request path, options.data, callback
 
-  _find_pathForObject: (object, action, options) ->
-    uri = @app_context.objectURI(object)
-    @_find_pathForURI(uri)
+  # Routing
+  # ---------------------------------------------------------------------------
 
-  _find_pathForURI: (uri, action, options) ->
-    options.pathParams    or= {}
-    options.pathParams.id or= uri.id
-    @_find_path(uri.collection, options.action, options)
+  _path: (collection, action, options = {}) ->
+    ### Creates path for collection/action pair.
 
-  _find_path: (collection, action, options = {}) ->
-    path = if @routes[collection] then @routes[collection][action] else null
-    if path
-      [method, path] = path.split(" ")
+    **Options**
+
+      - `path_params` if path contains additional params, e.g. `/foo/:bar_id`,
+      you can specify their values as object, e.g. `{bar_id: 5}`
+      - `params` params that will be used as query string, e.g. specify
+      `{bar: 5}` to get url `/foo?bar=5`
+
+    **Return value**
+
+    A route object, e.g. `{method: 'get', path: '/foo', query: 'bar=5'}`
+
+    ###
+    route_path = if @routes[collection] then @routes[collection][action] else null
+
+    if route_path
+      [method, path] = route_path.split(" ")
     else
       method  = @_method_for_action(action)
       path    = '/' + collection.toLowerCase() + 's'
 
-    if options.pathParams?
-      path = path.replace(":#{param}", value) for param, value of options.pathParams
+    if options.path_params?
+      path = path.replace(":#{param}", value) for param, value of options.path_params
+
     route = {method: method, path: path}
     route.query = $.param(options.params) if options.params?
     route
 
   _method_for_action: (action) ->
+    ### Returns default method for action passed. ###
     methods =
       'index': 'get',
       'create': 'post',
@@ -103,33 +120,26 @@ class ResourceClient
       'delete': 'delete'
     methods[action]
 
-  request: (path, data, callback) ->
-    proceed = =>
-      contentType = "application/x-www-form-urlencoded"
-      if @_data_format == "json"
-        data = JSON.stringify(data)
-        contentType = "application/json"
-      success = (result) ->
-        callback(result) if callback
-      error = (res, err) =>
-        if res.status == 401
-          console.log "failed with error 401 #{err}"
-          return @atmos.didFailAuth()
-        console.log "Request failed #{res} #{err}", res, err
-      options =
-        dataType: "json"
-        success: success
-        error: error
-        _headers: @_headers
-        contentType: contentType
-      options.data = data if data?
-      @ajax path, options
-    if @beforeRequest?
-      @beforeRequest(proceed)
-    else
-      proceed()
-
-  ajax: (path, options = {}) ->
+  request: (route, data, callback) ->
+    ### Makes an AJAX request to path specified. ###
+    # TODO: This should use route, right???
+    contentType = "application/x-www-form-urlencoded"
+    data = JSON.stringify(data)
+    contentType = "application/json"
+    success = (result) ->
+      callback(result) if callback
+    error = (res, err) =>
+      if res.status == 401
+        console.log "failed with error 401 #{err}"
+        return @atmos.didFailAuth()
+      console.log "Request failed #{res} #{err}", res, err
+    options =
+      dataType: "json"
+      success: success
+      error: error
+      _headers: @_headers
+      contentType: contentType
+    options.data = data if data?
     path = {path: path} if typeof path == 'string'
     url = @base + path.path
     url += "?#{path.query}" if path.query
@@ -137,7 +147,7 @@ class ResourceClient
     $.ajax url, options
 
 
-  addHeader: (header, value) ->
+  add_header: (header, value) ->
     @_headers[header] = value
 
 module.exports = ResourceClient

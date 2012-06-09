@@ -38,7 +38,7 @@ Spine.Model.Atmosphere =
   sync: (params = {}) ->
     @fetch()
     atmos = Atmosphere.instance
-    atmos.fetch @, params, (objects) ->
+    atmos.fetch @className, params, (objects) ->
       # TODO: Load them into memory! Somehow!
       console.log 'loading objects to class', objects, @
       @refresh(objects)

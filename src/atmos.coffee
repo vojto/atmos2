@@ -18,10 +18,9 @@ class Atmos extends Spine.Module
   # ---------------------------------------------------------------------------
 
   constructor: (options) ->
-    @messages = new MessageClient(atmos: this)
-    @resources = new ResourceClient(atmos: this)
+    @messages   = new MessageClient(atmos: this)
+    @resources  = new ResourceClient(atmos: this)
     Atmos.instance = this
-    Atmos.res = @resources
 
 
   # Resource interface
@@ -48,7 +47,6 @@ class Atmos extends Spine.Module
 
   did_auth: (content) ->
     @trigger("auth_success")
-    @getChanges()
 
   did_fail_auth: (content) ->
     @trigger("auth_fail")
