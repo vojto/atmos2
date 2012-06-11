@@ -1,5 +1,5 @@
 Spine = require('spine')
-{assert} = require('./util')
+{assert, pluralize} = require('./util')
 
 class ResourceClient
   # Lifecycle
@@ -23,34 +23,12 @@ class ResourceClient
       unless items?
         console.log "[ResourceClient] Items not found in response", result
         return
-      ids = @update_from_items(collection, items, options)
-      @_remove_objects_not_in_list(collection, ids, options.removeScope) if options.remove == true
-      options.success() if options.success
 
-  update_from_items: (collection, items, options) ->
-    ids = []
-    for item in items
-      uri = {collection: collection}
-      object = @update_from_item(uri, item, options)
-      ids.push(object.id)
-    ids
+      for item in items
+        item.id = item[@_id_field]
+        assert item.id, "[ResourceClient] There's no field '#{@_id_field}' that is configured as _id_field in incoming object"
 
-  update_from_item: (uri, item, options = {}) ->
-    item.id = item[@_id_field]
-    assert item.id, "[ResourceClient] There's no field '#{@_id_field}' that is configured as _id_field in incoming object"
-    uri.id or= item.id
-    options.updateData(item) if options.updateData?
-    if options.updateFromData?
-      options.updateFromData(uri, item, @_update_from_data)
-    else
-      @_update_from_data(uri, item)
-
-  _update_from_data: (uri, data) =>
-    object = @atmos.updateOrCreate(uri, data)
-    object
-
-  _remove_objects_not_in_list: (collection, ids, scope) ->
-    @atmos.removeObjectsNotInList(collection, ids, scope)
+      callback(items)
 
   # Saving
   # ---------------------------------------------------------------------------
@@ -102,7 +80,7 @@ class ResourceClient
       [method, path] = route_path.split(" ")
     else
       method  = @_method_for_action(action)
-      path    = '/' + collection.toLowerCase() + 's'
+      path    = '/' + pluralize(collection.toLowerCase())
 
     if options.path_params?
       path = path.replace(":#{param}", value) for param, value of options.path_params
@@ -121,31 +99,27 @@ class ResourceClient
     methods[action]
 
   request: (route, data, callback) ->
-    ### Makes an AJAX request to path specified. ###
-    # TODO: This should use route, right???
-    contentType = "application/x-www-form-urlencoded"
-    data = JSON.stringify(data)
-    contentType = "application/json"
-    success = (result) ->
-      callback(result) if callback
+    ### Makes an AJAX request specified by the `route` param. ###
+    content_type = "application/x-www-form-urlencoded"
+
     error = (res, err) =>
       if res.status == 401
         console.log "failed with error 401 #{err}"
         return @atmos.didFailAuth()
       console.log "Request failed #{res} #{err}", res, err
-    options =
-      dataType: "json"
-      success: success
-      error: error
-      _headers: @_headers
-      contentType: contentType
-    options.data = data if data?
-    path = {path: path} if typeof path == 'string'
-    url = @base + path.path
-    url += "?#{path.query}" if path.query
-    options.type or= path.method
-    $.ajax url, options
 
+    options =
+      type:         route.method
+      dataType:     "json"
+      success:      callback
+      error:        error
+      _headers:     @_headers
+      content_type: content_type
+      data:         data
+
+    url = @base + route.path
+
+    $.ajax url, options
 
   add_header: (header, value) ->
     @_headers[header] = value
