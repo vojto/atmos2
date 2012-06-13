@@ -30,12 +30,13 @@ atmos_save = (object, options) ->
   atmos       = Atmos.instance
   class_name  = object.constructor.className
   collection  = pluralize(class_name.toLowerCase())
+  data        = object.attributes()
 
   if object.isNew()
-    atmos.create collection, object.attributes(), options, (object) ->
+    atmos.create collection, data, options, (object) ->
       console.log 'create finished', object
   else
-    atmos.update collection, object.attributes(), options, (object) ->
+    atmos.update collection, data, options, (object) ->
       console.log 'create finished', object
 
 pluralize = (word) ->
