@@ -19,9 +19,9 @@ class ResourceClient
 
   fetch: (collection, options = {}, callback) ->
     path = @_path(collection, "index", options)
-    @request path, {}, (items) =>
+    @request path, {}, (items, res) =>
       unless items?
-        console.log "[ResourceClient] Items not found in response", result
+        console.log "[ResourceClient] Items not found in response", res
         return
 
       for item in items

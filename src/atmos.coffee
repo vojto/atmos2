@@ -23,6 +23,11 @@ class Atmos extends Spine.Module
     @resources  = new ResourceClient(atmos: this)
     Atmos.instance = this
 
+  fetch: (params...) -> @resources.fetch(params...)
+  save: (params...) -> @resources.save(params...)
+  execute: (params...) -> @resources.execute(params...)
+  request: (params...) -> @resources.request(params...)
+
   # Authentication
   # ---------------------------------------------------------------------------
 
@@ -32,13 +37,5 @@ class Atmos extends Spine.Module
   did_fail_auth: (content) ->
     @trigger("auth_fail")
 
-
-# Shortcut methods
-# ---------------------------------------------------------------------------
-
-resource_methods = ['fetch', 'save', 'execute', 'request']
-for method in resource_methods
-  Atmos.prototype[method] = -> @resources[method].apply(@resources, arguments)
-  Atmos[method] = -> Atmos.instance.resources[method].apply(Atmos.instance.resources, arguments)
 
 module.exports = Atmos
