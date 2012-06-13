@@ -23,28 +23,8 @@ class Atmos extends Spine.Module
     @resources  = new ResourceClient(atmos: this)
     Atmos.instance = this
 
-
-  # Resource interface
-  # ---------------------------------------------------------------------------
-
-  fetch: (params...) ->
-    @resources.fetch(params...)
-
-  save: (object, options) ->
-    @resources.save(object, options)
-
-  # TODO: What's the difference between `execute` and `request`?
-  execute: (params...) -> @resources.execute(params...)
-  request: (params...) -> @resources.request(params...)
-
   # Authentication
   # ---------------------------------------------------------------------------
-
-  set_auth_key: (key) ->
-    @authKey = key
-
-  has_auth_key: ->
-    @authKey? && @authKey != ""
 
   did_auth: (content) ->
     @trigger("auth_success")
@@ -52,5 +32,13 @@ class Atmos extends Spine.Module
   did_fail_auth: (content) ->
     @trigger("auth_fail")
 
+
+# Shortcut methods
+# ---------------------------------------------------------------------------
+
+resource_methods = ['fetch', 'save', 'execute', 'request']
+for method in resource_methods
+  Atmos.prototype[method] = -> @resources[method].apply(@, arguments)
+  Atmos[method] = -> Atmos.instance.resources[method].apply(@, arguments)
 
 module.exports = Atmos

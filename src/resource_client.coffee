@@ -105,7 +105,7 @@ class ResourceClient
     error = (res, err) =>
       if res.status == 401
         console.log "failed with error 401 #{err}"
-        return @atmos.didFailAuth()
+        return @atmos.did_fail_auth()
       console.log "Request failed #{res} #{err}", res, err
 
     options =
