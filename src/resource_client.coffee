@@ -75,7 +75,7 @@ class ResourceClient
       path = path.replace(":#{param}", value) for param, value of options.path_params
 
     route = {method: method, path: path}
-    route.query = $.param(options.params) if options.params?
+    route.query = options.params if options.params?
     route
 
   _method_for_action: (action) ->
@@ -115,7 +115,9 @@ class ResourceClient
       _headers:     @_headers
       content_type: content_type
       data:         data
+
     url = @base + route.path
+    url += '?' + $.param(route.query) if route.query
 
     $.ajax url, options
 
