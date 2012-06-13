@@ -8,36 +8,38 @@ Atmos = require('./atmos')
 
 Spine.Model.Atmos =
   extended: ->
-    spineSave = @::["save"]
+    spine_save = @::["save"]
     @::["save"] = (args...) ->
       atmos = Atmos.instance
       options = args[0]
-      if atmos? && options? && options.remote == true
-        atmos.save(this, options)
+      if options? && options.remote == true
+        atmos_save(this, options)
       else
-        spineSave.call(this, args...)
-    @::["changeID"] = (id) -> # TODO: Fix this mess
-      @destroy()
-      @id = id
-      @newRecord = true
-      @save()
-    @bind 'beforeCreate', (record) ->
-      record.id or= @_uuid()
+        spine_save.call(this, args...)
 
-  _uuid: ->
-    'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace /[xy]/g, (c) ->
-      r = Math.random() * 16 | 0
-      v = if c is 'x' then r else r & 3 | 8
-      v.toString 16
-
-  # uid: -> @_uuid()
-
-  # TODO: Start with this method, okaaay? Just make it work like spine.ajax, okaay?
   sync: (params = {}) ->
     @fetch()
-    atmos = Atmos.instance
-    atmos.fetch @className, params, (objects) =>
-      console.log 'spine.atmos: finished fetch', objects
+    atmos       = Atmos.instance
+    collection  = pluralize(@className.toLowerCase())
+    atmos.fetch collection, params, (objects) =>
       # TODO: Load them into memory! Somehow!
       console.log 'loading objects to class', objects, @
       @refresh(objects)
+
+atmos_save = (object, options) ->
+  atmos       = Atmos.instance
+  class_name  = object.constructor.className
+  collection  = pluralize(class_name.toLowerCase())
+
+  if object.isNew()
+    atmos.create collection, object.attributes(), options, (object) ->
+      console.log 'create finished', object
+  else
+    atmos.update collection, object.attributes(), options, (object) ->
+      console.log 'create finished', object
+
+pluralize = (word) ->
+  if word.match /y$/
+    word.replace /y$/, 'ies'
+  else
+    word + 's'

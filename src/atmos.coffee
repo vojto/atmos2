@@ -24,8 +24,8 @@ class Atmos extends Spine.Module
     Atmos.instance = this
 
   fetch: (params...) -> @resources.fetch(params...)
-  save: (params...) -> @resources.save(params...)
-  execute: (params...) -> @resources.execute(params...)
+  create: (params...) -> @resources.create(params...)
+  update: (params...) -> @resources.update(params...)
   request: (params...) -> @resources.request(params...)
 
   # Authentication
