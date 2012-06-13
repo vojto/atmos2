@@ -38,7 +38,7 @@ class Atmos extends Spine.Module
 
 resource_methods = ['fetch', 'save', 'execute', 'request']
 for method in resource_methods
-  Atmos.prototype[method] = -> @resources[method].apply(@, arguments)
-  Atmos[method] = -> Atmos.instance.resources[method].apply(@, arguments)
+  Atmos.prototype[method] = -> @resources[method].apply(@resources, arguments)
+  Atmos[method] = -> Atmos.instance.resources[method].apply(Atmos.instance.resources, arguments)
 
 module.exports = Atmos

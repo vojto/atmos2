@@ -45,17 +45,6 @@ class ResourceClient
         uri = @app_context.objectURI(object)
       @update_from_item(uri, result, options)
 
-  execute: (options, callback) ->
-    if typeof options == 'string'
-      path = {method: 'get', path: options}
-    else if options.collection
-      path = @_path(options.collection, options.action, options)
-    else if options.object
-      path = @_path_for_object(options.object, options.action, options)
-    else
-      path = options
-    @request path, options.data, callback
-
   # Routing
   # ---------------------------------------------------------------------------
 
@@ -99,24 +88,33 @@ class ResourceClient
     methods[action]
 
   request: (route, data, callback) ->
-    ### Makes an AJAX request specified by the `route` param. ###
+    ### Makes an AJAX request.
+
+    **Arguments**:
+
+    - `route` Atmos route object, see `_path`
+    - `data` Data payload for POST requests. To specify URL parameters
+    in GET requests, use `query` key of route.
+    - `callback(object, response)` Function to be called upon finishing
+    request. If the response was valid JSON, `object` is parsed JSON.
+    ###
+
     content_type = "application/x-www-form-urlencoded"
 
-    error = (res, err) =>
-      if res.status == 401
-        console.log "failed with error 401 #{err}"
-        return @atmos.did_fail_auth()
-      console.log "Request failed #{res} #{err}", res, err
+    complete = (res) =>
+      try
+        object = JSON.parse(res.responseText)
+      catch error
+        console.log 'unable to parse json', res.responseText, error
+      @atmos.did_fail_auth() if res.status == 401
+      callback(object, res)
 
     options =
       type:         route.method
-      dataType:     "json"
-      success:      callback
-      error:        error
+      complete:     complete
       _headers:     @_headers
       content_type: content_type
       data:         data
-
     url = @base + route.path
 
     $.ajax url, options
