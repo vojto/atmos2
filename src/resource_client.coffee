@@ -1,5 +1,6 @@
-Spine = require('spine')
 {assert, pluralize} = require('./util')
+
+ResourceCache = require('./resource_cache')
 
 class ResourceClient
   # Lifecycle
@@ -7,7 +8,8 @@ class ResourceClient
 
   constructor: (options) ->
     @atmos = options.atmos
-    @app_context = options.app_context
+    @cache = new ResourceCache
+    @cache_enabled = true
 
     @base = null
     @routes = {}
@@ -27,6 +29,8 @@ class ResourceClient
       for item in items
         item.id = item[@_id_field]
         assert item.id, "[ResourceClient] There's no field '#{@_id_field}' that is configured as _id_field in incoming object"
+
+      @cache.store_objects(path, items) if @cache_enabled
 
       callback(items)
 
