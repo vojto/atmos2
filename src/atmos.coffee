@@ -23,10 +23,12 @@ class Atmos extends Spine.Module
     @resources  = new ResourceClient(atmos: this)
     Atmos.instance = this
 
-  fetch: (params...) -> @resources.fetch(params...)
-  create: (params...) -> @resources.create(params...)
-  update: (params...) -> @resources.update(params...)
-  request: (params...) -> @resources.request(params...)
+  fetch   : (params...) -> @resources.fetch(params...)
+  create  : (params...) -> @resources.create(params...)
+  update  : (params...) -> @resources.update(params...)
+  request : (params...) -> @resources.request(params...)
+  get     : (params...) -> @resources.get(params...)
+  post    : (params...) -> @resources.post(params...)
 
   # Authentication
   # ---------------------------------------------------------------------------

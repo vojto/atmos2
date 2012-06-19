@@ -127,6 +127,16 @@ class ResourceClient
 
     $.ajax url, options
 
+  get: (path, callback) ->
+    ### Shortcut method for making quick `get` request **without
+    query params.** If you want to add query params, use `request`
+    and pass a route object. ###
+    @request {method: 'get', path: path}, {}, callback
+
+  post: (path, data, callback) ->
+    ### Shortcut for making quick `post` request. See `get`. ###
+    @request {method: 'post', path: path}, data, callback
+
   add_header: (header, value) ->
     @_headers[header] = value
 
