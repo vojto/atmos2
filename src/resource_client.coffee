@@ -21,6 +21,11 @@ class ResourceClient
 
   fetch: (collection, options = {}, callback) ->
     path = @_path(collection, "index", options)
+
+    if @cache_enabled
+      cached_items = @cache.collect_objects(path)
+      callback(cached_items) if cached_items
+
     @request path, {}, (items, res) =>
       unless items?
         console.log "[ResourceClient] Items not found in response", res
