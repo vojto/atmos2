@@ -24,6 +24,7 @@ Spine.Model.Atmos =
     atmos.fetch collection, params, (objects) =>
       # TODO: Load them into memory! Somehow!
       console.log 'loading objects to class', objects, @
+      @deleteAll()
       @refresh(objects)
 
 atmos_save = (object, options) ->
