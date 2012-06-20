@@ -11,10 +11,10 @@ class ResourceClient
     @cache = new ResourceCache
     @cache_enabled = true
 
-    @base = options.base
-    @routes = options.routes || {}
-    @_headers = {}
-    @_id_field = '_id'
+    @base     = options.base
+    @routes   = options.routes    || {}
+    @headers  = options.headers   || {}
+    @id_field = options.id_field  || '_id'
 
   # Fetching
   # ---------------------------------------------------------------------------
@@ -32,8 +32,8 @@ class ResourceClient
         return
 
       for item in items
-        item.id = item[@_id_field]
-        assert item.id, "[ResourceClient] There's no field '#{@_id_field}' that is configured as _id_field in incoming object"
+        item.id = item[@id_field]
+        assert item.id, "[ResourceClient] There's no field '#{@id_field}' that is configured as id_field in incoming object"
 
       @cache.store_objects(path, items) if @cache_enabled
 
@@ -52,7 +52,7 @@ class ResourceClient
 
   _save: (collection, object, options = {}, callback) ->
     data             = object
-    data[@_id_field] = object.id
+    data[@id_field] = object.id
 
     options.path_params     or= {}
     options.path_params.id  = data.id
@@ -127,7 +127,7 @@ class ResourceClient
     options =
       type:         route.method
       complete:     complete
-      _headers:     @_headers
+      headers:     @headers
       content_type: content_type
       data:         data
 
@@ -147,6 +147,6 @@ class ResourceClient
     @request {method: 'post', path: path}, data, callback
 
   add_header: (header, value) ->
-    @_headers[header] = value
+    @headers[header] = value
 
 module.exports = ResourceClient
