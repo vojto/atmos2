@@ -6,6 +6,12 @@
 Spine = require('spine')
 Atmos = require('./atmos')
 
+pushed_models = {}
+
+setup_model_for_push = (model) ->
+  collection = pluralize(model.className)
+  pushed_models[collection] = model
+
 Spine.Model.Atmos =
   extended: ->
     spine_save = @::["save"]
@@ -20,7 +26,8 @@ Spine.Model.Atmos =
   sync: (params = {}) ->
     @fetch()
     atmos       = Atmos.instance
-    collection  = pluralize(@className.toLowerCase())
+    collection  = pluralize(@className)
+    setup_model_for_push(@)
     atmos.fetch collection, params, (objects) =>
       # TODO: Load them into memory! Somehow!
       console.log 'loading objects to class', objects, @
@@ -40,7 +47,18 @@ atmos_save = (object, options) ->
       console.log 'create finished', object
 
 pluralize = (word) ->
+  word = word.toLowerCase()
   if word.match /y$/
     word.replace /y$/, 'ies'
   else
     word + 's'
+
+Atmos.ready = ->
+  Atmos.bind 'update_object', ({collection, id, object}) ->
+    model = pushed_models[collection]
+    return console.log "collection #{collection} wasn't synced yet" if !model
+    console.log 'updating', collection, id, object
+    record = model.exists(id) || new model
+    record.load(object)
+    record.id = id
+    record.save()

@@ -23,6 +23,7 @@ class Atmos extends Spine.Module
     @messages   = new MessageClient(options)
     @resources  = new ResourceClient(options)
     Atmos.instance = this
+    Atmos.ready() if Atmos.ready?
 
   fetch   : (params...) -> @resources.fetch(params...)
   create  : (params...) -> @resources.create(params...)
@@ -30,6 +31,12 @@ class Atmos extends Spine.Module
   request : (params...) -> @resources.request(params...)
   get     : (params...) -> @resources.get(params...)
   post    : (params...) -> @resources.post(params...)
+
+  # Events
+  # ---------------------------------------------------------------------------
+
+  @bind   : (params...) -> Atmos.instance.bind(params...)
+  @trigger: (params...) -> Atmos.instance.bind(params...)
 
   # Authentication
   # ---------------------------------------------------------------------------

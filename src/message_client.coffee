@@ -11,20 +11,18 @@ class MessageClient
 
   connect: ->
     @close()
-    console.log "[Atmosphere.Client] Connecting to #{@base}"
+    console.log "messages connecting to #{@base}"
     @socket = SocketIO.connect(@base, 'force new connection': true)
     @socket.on 'connect', =>
       console.log 'socket connected'
-      @send 'auth', @authKey
-    @socket.on 'notification', this.parseNotification
-    @socket.on 'update', this.parseUpdate
-    @socket.on 'disconnect', this.socketDidClose
+    @socket.on 'update', @did_update
+    @socket.on 'disconnect', @did_close
 
   close: ->
     @socket.disconnect() if @socket
 
-  socketDidClose: =>
-    console.log "[Atmosphere.Client] Connection closed"
+  did_close: =>
+    console.log "messages connection closed"
     @socket = null
 
   send: (type, content) ->
@@ -33,10 +31,8 @@ class MessageClient
   # Messaging interface
   # ---------------------------------------------------------------------------
 
-  parseNotification: (data) =>
-    console.log 'notification: ', data
+  did_update: (payload) =>
+    @atmos.trigger('update_object', payload)
 
-  parseUpdate: (data) =>
-    @atmos.updateOrCreate(data.uri, data.attrs)
 
 module.exports = MessageClient
