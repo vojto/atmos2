@@ -5,12 +5,14 @@
 # -----------------------------------------------------------------------------
 
 class MessageClient
-  constructor: ({@atmos}) ->
+  constructor: (options) ->
+    @atmos = options.atmos
+    @base  = options.base
 
-  connect: (callback) ->
+  connect: ->
     @close()
-    console.log "[Atmosphere.Client] Connecting to #{@url}"
-    @socket = SocketIO.connect(@url, 'force new connection': true)
+    console.log "[Atmosphere.Client] Connecting to #{@base}"
+    @socket = SocketIO.connect(@base, 'force new connection': true)
     @socket.on 'connect', =>
       console.log 'socket connected'
       @send 'auth', @authKey

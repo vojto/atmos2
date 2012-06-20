@@ -11,8 +11,8 @@ class ResourceClient
     @cache = new ResourceCache
     @cache_enabled = true
 
-    @base = null
-    @routes = {}
+    @base = options.base
+    @routes = options.routes || {}
     @_headers = {}
     @_id_field = '_id'
 
