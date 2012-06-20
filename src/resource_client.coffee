@@ -59,6 +59,7 @@ class ResourceClient
     path = @_path(collection, options.action, options)
 
     @request path, data, (object, res) =>
+      @cache.update_object(object) if @cache_enabled
       callback(object)
 
   # Routing
