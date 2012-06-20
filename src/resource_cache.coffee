@@ -14,12 +14,14 @@ class ResourceCache
     Objects should also contain value for the `id` field.
     ###
 
-    # 1. Store objects
     object_keys = for object in objects
       @_store_object(object)
 
     request_key = @_request_key(path)
     @_local_write(request_key, object_keys)
+
+  update_object: (object) ->
+    @_store_object(object)
 
   _store_object: (object) ->
     key = object.id || @_object_checksum(object)
