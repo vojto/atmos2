@@ -108,7 +108,7 @@ class ResourceClient
 
     **Arguments**:
 
-    - `route` Atmos route object, see `_path`
+    - `route` Atmos route object, e.g. `{method: 'get', path: '/foo', query: 'bar=5'}`
     - `data` Data payload for POST requests. To specify URL parameters
     in GET requests, use `query` key of route.
     - `callback(object, response)` Function to be called upon finishing

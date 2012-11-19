@@ -19,10 +19,16 @@ class Atmos extends Spine.Module
 
   constructor: (options) ->
     ### Creates an instance of Atmos. ###
+    return Atmos.instance if Atmos.instance
+
     options.atmos = this
     @messages   = new MessageClient(options)
     @resources  = new ResourceClient(options)
+
     Atmos.instance = this
+    Atmos.res      = @resources
+    Atmos.mes      = @messages
+
     Atmos.ready() if Atmos.ready?
 
   fetch   : (params...) -> @resources.fetch(params...)
