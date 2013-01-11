@@ -1,5 +1,7 @@
 # Atmos2
 
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/vojto/atmos2/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
 [View this file as website on DocumentUp](http://documentup.com/vojto/atmos2/)
 
 ## Introduction
